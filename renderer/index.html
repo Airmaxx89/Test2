@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>Datei-Zeitplaner</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Datei-Zeitplaner</h1>
+    <p class="subtitle">Öffnet Dateien automatisch nach Zeitplan – die App muss dafür laufen.</p>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>Neuen Eintrag anlegen</h2>
+      <form id="entry-form">
+        <div class="field">
+          <label>Datei</label>
+          <div class="file-row">
+            <input type="text" id="file-path" placeholder="Noch keine Datei ausgewählt" readonly required />
+            <button type="button" id="choose-file-btn">Durchsuchen…</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Wiederholung</label>
+          <select id="type-select">
+            <option value="once">Einmalig</option>
+            <option value="daily">Täglich</option>
+            <option value="weekly">Wöchentlich</option>
+          </select>
+        </div>
+
+        <div class="field" id="date-field">
+          <label>Datum</label>
+          <input type="date" id="date-input" />
+        </div>
+
+        <div class="field" id="weekday-field" style="display:none;">
+          <label>Wochentag</label>
+          <select id="weekday-select">
+            <option value="1">Montag</option>
+            <option value="2">Dienstag</option>
+            <option value="3">Mittwoch</option>
+            <option value="4">Donnerstag</option>
+            <option value="5">Freitag</option>
+            <option value="6">Samstag</option>
+            <option value="0">Sonntag</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Uhrzeit</label>
+          <input type="time" id="time-input" required />
+        </div>
+
+        <button type="submit" class="primary">Zeitplan hinzufügen</button>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Geplante Einträge</h2>
+      <ul id="entry-list" class="entry-list"></ul>
+    </section>
+
+    <section class="card">
+      <h2>Verlauf</h2>
+      <ul id="log-list" class="log-list"></ul>
+    </section>
+  </main>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
