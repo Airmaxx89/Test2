@@ -44,6 +44,31 @@ Bereich **„Verlauf“** wird protokolliert, wann welche Datei geöffnet wurde.
 Alle Einträge werden lokal gespeichert (`schedules.json` im
 Anwendungsdatenordner) und bleiben nach einem Neustart der App erhalten.
 
+## Als Windows-.exe verpacken
+
+Mit [electron-builder](https://www.electron.build) lässt sich aus dem
+Projekt eine eigenständige Windows-Anwendung erzeugen (Installer + portable
+.exe), die kein installiertes Node.js oder `npm start` mehr benötigt.
+
+```bash
+npm install
+npm run dist:win
+```
+
+Das Ergebnis liegt danach im Ordner `dist/`:
+
+- `Datei-Zeitplaner Setup <version>.exe` – Installer (NSIS)
+- `Datei-Zeitplaner <version>.exe` – portable Version, läuft ohne Installation
+
+**Wichtig:** Am einfachsten wird dieser Befehl direkt auf einem
+Windows-Rechner ausgeführt. Baut man den Windows-Build stattdessen unter
+Linux oder macOS, wird zusätzlich [Wine](https://www.winehq.org/) benötigt,
+damit electron-builder den NSIS-Installer erstellen kann.
+
+Die erzeugte `.exe` einfach doppelklicken bzw. installieren – die App
+verhält sich danach genauso wie mit `npm start`, inklusive Speicherung des
+Zeitplans zwischen Programmstarts.
+
 ## Projektstruktur
 
 ```
