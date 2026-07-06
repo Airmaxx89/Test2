@@ -10,6 +10,11 @@ Standardprogramm des Betriebssystems geöffnet (z. B. PDF im PDF-Reader,
 > Oberfläche hier in einer Electron-App mit einem kleinen Node.js-Backend,
 > das die eigentliche Öffnen-Aktion und den Zeitplan übernimmt.
 
+**Firmen-PC ohne Installationsrechte?** Im Ordner [`powershell/`](powershell/)
+liegt eine alternative Variante, die ganz ohne Node.js/Electron und ohne
+Installation auskommt – nur PowerShell und die native Windows-Aufgaben-
+planung. Siehe [`powershell/README.md`](powershell/README.md).
+
 ## Voraussetzungen
 
 - [Node.js](https://nodejs.org) (Version 18 oder neuer)
