@@ -1,0 +1,44 @@
+; Engine configuration file.
+; Godot 4.2+
+
+config_version=5
+
+[application]
+
+config/name="Nordmark Legends"
+config/description="Ein eigenständiges, mittelalterliches Offline-RPG im Voxel-Look, inspiriert von klassischen MMORPGs. Startgebiet: Königreich Eichenmark."
+run/main_scene="res://scenes/Main.tscn"
+config/features=PackedStringArray("4.2", "Mobile")
+boot_splash/bg_color=Color(0.05, 0.05, 0.08, 1)
+config/icon="res://icon.svg"
+
+[autoload]
+
+GameManager="*res://autoload/GameManager.gd"
+QuestManager="*res://autoload/QuestManager.gd"
+SaveManager="*res://autoload/SaveManager.gd"
+InputState="*res://autoload/InputState.gd"
+DialogueState="*res://autoload/DialogueState.gd"
+
+[display]
+
+window/size/viewport_width=720
+window/size/viewport_height=1280
+window/handheld/orientation=1
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+
+[input_devices]
+
+pointing/emulate_touch_from_mouse=true
+
+[rendering]
+
+renderer/rendering_method="mobile"
+renderer/rendering_method.mobile="mobile"
+textures/canvas_textures/default_texture_filter=0
+environment/defaults/default_environment="res://default_env.tres"
+
+[physics]
+
+3d/default_gravity=24.0

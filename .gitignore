@@ -1,0 +1,20 @@
+# Godot 4+ specific ignores
+.godot/
+.import/
+export.cfg
+export_credentials.cfg
+*.translation
+
+# Android build artifacts
+android/build/
+*.apk
+*.aab
+*.apks
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+
+# Python tool venv (texture generator)
+tools/__pycache__/
