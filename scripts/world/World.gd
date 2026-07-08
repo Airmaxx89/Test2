@@ -9,6 +9,8 @@ class_name World
 const CHUNK_SIZE := 16
 const WORLD_HEIGHT := 48
 const LOAD_RADIUS := 3
+const IMMEDIATE_RADIUS := 1
+const CHUNKS_PER_FRAME := 2
 const WATER_LEVEL := 27
 
 var noise: FastNoiseLite
@@ -22,6 +24,7 @@ var npcs: Array = []
 var player: Node3D = null
 
 var _chunk_timer: float = 0.0
+var _pending_chunks: Array = []
 
 signal player_spawned(player: Node3D)
 
@@ -36,6 +39,10 @@ func _ready() -> void:
 	_spawn_npcs()
 	_init_spawners()
 	_spawn_player()
+	# Build the ground right under/around the player synchronously so they
+	# never fall through the world; the rest of the view distance streams
+	# in over the next few frames instead of freezing on one big frame.
+	_load_chunks_immediate(player.global_position)
 	update_chunks(player.global_position)
 
 
@@ -83,6 +90,10 @@ func get_zone(x: int) -> String:
 	return ZoneData.get_zone(x)
 
 
+func get_biome(x: int) -> String:
+	return ZoneData.get_biome(x)
+
+
 func get_height(x: int, z: int) -> int:
 	var biome := ZoneData.get_biome(x)
 	if biome == "meadow" and absi(x) < 26:
@@ -120,11 +131,15 @@ func get_surface_block(x: int) -> int:
 
 
 func get_block(x: int, y: int, z: int) -> int:
+	return get_block_in_column(x, y, z, get_height(x, z), ZoneData.get_biome(x))
+
+
+## Faster path for chunk meshing: caller already knows the column's height
+## and biome, so this skips re-sampling noise for every single y-level.
+func get_block_in_column(x: int, y: int, z: int, h: int, biome: String) -> int:
 	var key := Vector3i(x, y, z)
 	if overrides.has(key):
 		return overrides[key]
-	var h := get_height(x, z)
-	var biome := ZoneData.get_biome(x)
 	if y > h:
 		if biome == "swamp" and y <= WATER_LEVEL:
 			return VoxelData.Block.WATER
@@ -245,6 +260,15 @@ func _get_chunk_coord(pos: Vector3) -> Vector2i:
 	return Vector2i(int(floor(pos.x / CHUNK_SIZE)), int(floor(pos.z / CHUNK_SIZE)))
 
 
+func _load_chunks_immediate(center_pos: Vector3) -> void:
+	var center_chunk := _get_chunk_coord(center_pos)
+	for dx in range(-IMMEDIATE_RADIUS, IMMEDIATE_RADIUS + 1):
+		for dz in range(-IMMEDIATE_RADIUS, IMMEDIATE_RADIUS + 1):
+			var c := Vector2i(center_chunk.x + dx, center_chunk.y + dz)
+			if not chunks.has(c):
+				_load_chunk(c)
+
+
 func update_chunks(center_pos: Vector3) -> void:
 	var center_chunk := _get_chunk_coord(center_pos)
 	var needed: Dictionary = {}
@@ -252,11 +276,21 @@ func update_chunks(center_pos: Vector3) -> void:
 		for dz in range(-LOAD_RADIUS, LOAD_RADIUS + 1):
 			var c := Vector2i(center_chunk.x + dx, center_chunk.y + dz)
 			needed[c] = true
-			if not chunks.has(c):
-				_load_chunk(c)
+			if not chunks.has(c) and not _pending_chunks.has(c):
+				_pending_chunks.append(c)
 	for c in chunks.keys():
 		if not needed.has(c):
 			_unload_chunk(c)
+	_pending_chunks = _pending_chunks.filter(func(c): return needed.has(c))
+
+
+func _process_chunk_queue() -> void:
+	for i in range(CHUNKS_PER_FRAME):
+		if _pending_chunks.is_empty():
+			break
+		var c: Vector2i = _pending_chunks.pop_front()
+		if not chunks.has(c):
+			_load_chunk(c)
 
 
 func _load_chunk(c: Vector2i) -> void:
@@ -283,6 +317,7 @@ func _process(delta: float) -> void:
 	if _chunk_timer <= 0.0:
 		_chunk_timer = 0.5
 		update_chunks(player.global_position)
+	_process_chunk_queue()
 	_update_spawners(delta)
 
 

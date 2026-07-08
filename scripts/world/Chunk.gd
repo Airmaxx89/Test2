@@ -18,8 +18,23 @@ func build(cx: int, cz: int, world: World) -> void:
 		for lz in range(World.CHUNK_SIZE):
 			var wx := cx * World.CHUNK_SIZE + lx
 			var wz := cz * World.CHUNK_SIZE + lz
+			var h := world.get_height(wx, wz)
+			var biome := world.get_biome(wx)
+			# No override ever carves below the surface (trees/houses/walls/
+			# roads only ever add blocks at or above ground level), so any
+			# block well below this column's own height AND all 4 neighbors'
+			# heights is guaranteed fully buried - skip it without even
+			# touching the override dictionary.
+			var min_neighbor_h: int = h
+			min_neighbor_h = min(min_neighbor_h, world.get_height(wx + 1, wz))
+			min_neighbor_h = min(min_neighbor_h, world.get_height(wx - 1, wz))
+			min_neighbor_h = min(min_neighbor_h, world.get_height(wx, wz + 1))
+			min_neighbor_h = min(min_neighbor_h, world.get_height(wx, wz - 1))
+			var safe_below := min_neighbor_h - 2
 			for y in range(World.WORLD_HEIGHT):
-				var block: int = world.get_block(wx, y, wz)
+				if y < safe_below:
+					continue
+				var block: int = world.get_block_in_column(wx, y, wz, h, biome)
 				if block == VoxelData.Block.AIR:
 					continue
 				_add_block(st, world, wx, y, wz, lx, y, lz, block)

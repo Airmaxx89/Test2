@@ -54,8 +54,8 @@ const SPAWNERS := [
 
 static func get_zone(x: int) -> String:
 	for id in ZONES.keys():
-		var range: Vector2i = ZONES[id]["x"]
-		if x >= range.x and x < range.y:
+		var bounds: Vector2i = ZONES[id]["x"]
+		if x >= bounds.x and x < bounds.y:
 			return id
 	return "eichenfeld"
 

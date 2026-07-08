@@ -20,66 +20,72 @@ func _ready() -> void:
 	add_child(root)
 
 	var panel := Panel.new()
-	panel.custom_minimum_size = Vector2(260, 110)
-	panel.size = Vector2(260, 110)
+	panel.custom_minimum_size = Vector2(300, 96)
+	panel.size = Vector2(300, 96)
 	panel.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	panel.position = Vector2(16, 16)
+	panel.position = Vector2(20, 20)
 	root.add_child(panel)
 
 	level_label = Label.new()
-	level_label.position = Vector2(10, 4)
+	level_label.position = Vector2(14, 6)
+	level_label.add_theme_color_override("font_color", GameTheme.ACCENT_BRIGHT)
+	level_label.add_theme_font_size_override("font_size", 22)
 	panel.add_child(level_label)
 
 	health_bar = ProgressBar.new()
-	health_bar.custom_minimum_size = Vector2(230, 18)
-	health_bar.position = Vector2(10, 30)
+	health_bar.theme_type_variation = "HealthBar"
+	health_bar.custom_minimum_size = Vector2(272, 16)
+	health_bar.position = Vector2(14, 32)
 	health_bar.show_percentage = false
-	var hp_style := StyleBoxFlat.new()
-	hp_style.bg_color = Color(0.75, 0.15, 0.15)
-	health_bar.add_theme_stylebox_override("fill", hp_style)
 	panel.add_child(health_bar)
 
 	resource_bar = ProgressBar.new()
-	resource_bar.custom_minimum_size = Vector2(230, 14)
-	resource_bar.position = Vector2(10, 54)
+	resource_bar.theme_type_variation = "ManaBar"
+	resource_bar.custom_minimum_size = Vector2(272, 12)
+	resource_bar.position = Vector2(14, 52)
 	resource_bar.show_percentage = false
-	var res_style := StyleBoxFlat.new()
-	res_style.bg_color = Color(0.2, 0.4, 0.8)
-	resource_bar.add_theme_stylebox_override("fill", res_style)
 	panel.add_child(resource_bar)
 
 	xp_bar = ProgressBar.new()
-	xp_bar.custom_minimum_size = Vector2(230, 10)
-	xp_bar.position = Vector2(10, 74)
+	xp_bar.theme_type_variation = "XPBar"
+	xp_bar.custom_minimum_size = Vector2(272, 8)
+	xp_bar.position = Vector2(14, 68)
 	xp_bar.show_percentage = false
-	var xp_style := StyleBoxFlat.new()
-	xp_style.bg_color = Color(0.8, 0.7, 0.2)
-	xp_bar.add_theme_stylebox_override("fill", xp_style)
 	panel.add_child(xp_bar)
 
 	gold_label = Label.new()
-	gold_label.position = Vector2(10, 90)
+	gold_label.position = Vector2(14, 78)
+	gold_label.add_theme_font_size_override("font_size", 15)
+	gold_label.add_theme_color_override("font_color", GameTheme.TEXT_MUTED)
 	panel.add_child(gold_label)
 
+	var zone_panel := Panel.new()
+	zone_panel.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	zone_panel.position = Vector2(-140, 16)
+	zone_panel.size = Vector2(280, 44)
+	zone_panel.custom_minimum_size = Vector2(280, 44)
+	root.add_child(zone_panel)
+
 	zone_label = Label.new()
-	zone_label.set_anchors_preset(Control.PRESET_TOP_WIDE)
-	zone_label.position = Vector2(0, 16)
+	zone_label.set_anchors_preset(Control.PRESET_FULL_RECT)
 	zone_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	zone_label.add_theme_font_size_override("font_size", 22)
-	root.add_child(zone_label)
+	zone_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	zone_label.add_theme_font_size_override("font_size", 20)
+	zone_label.add_theme_color_override("font_color", GameTheme.ACCENT)
+	zone_panel.add_child(zone_label)
 
 	var quest_btn := Button.new()
 	quest_btn.text = "Quests"
-	quest_btn.custom_minimum_size = Vector2(90, 50)
+	quest_btn.custom_minimum_size = Vector2(100, 48)
 	quest_btn.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	quest_btn.position = Vector2(-200, 16)
+	quest_btn.position = Vector2(-220, 20)
 	root.add_child(quest_btn)
 
 	var inv_btn := Button.new()
 	inv_btn.text = "Inventar"
-	inv_btn.custom_minimum_size = Vector2(90, 50)
+	inv_btn.custom_minimum_size = Vector2(100, 48)
 	inv_btn.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	inv_btn.position = Vector2(-100, 16)
+	inv_btn.position = Vector2(-110, 20)
 	root.add_child(inv_btn)
 
 	quest_log_ui = preload("res://scripts/ui/QuestLogUI.gd").new()

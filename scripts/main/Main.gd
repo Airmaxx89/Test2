@@ -14,6 +14,7 @@ var save_timer: Timer
 
 
 func _ready() -> void:
+	get_tree().root.theme = GameTheme.build_theme()
 	_show_start_menu()
 
 

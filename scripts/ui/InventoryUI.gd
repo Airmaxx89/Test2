@@ -3,40 +3,64 @@ class_name InventoryUI
 
 var panel: Panel
 var content: VBoxContainer
+var weapon_lbl: Label
+var gold_lbl: Label
 var is_visible_state: bool = false
 
 
 func _ready() -> void:
 	layer = 6
 	panel = Panel.new()
-	panel.custom_minimum_size = Vector2(460, 600)
-	panel.size = Vector2(460, 600)
+	panel.custom_minimum_size = Vector2(480, 540)
+	panel.size = Vector2(480, 540)
 	panel.set_anchors_preset(Control.PRESET_CENTER)
-	panel.position = Vector2(-230, -300)
+	panel.position = Vector2(-240, -270)
 	panel.visible = false
 	add_child(panel)
 
 	var title := Label.new()
 	title.text = "Inventar"
 	title.add_theme_font_size_override("font_size", 26)
-	title.position = Vector2(14, 10)
+	title.add_theme_color_override("font_color", GameTheme.ACCENT_BRIGHT)
+	title.position = Vector2(20, 14)
 	panel.add_child(title)
 
 	var close_btn := Button.new()
 	close_btn.text = "Schließen"
 	close_btn.custom_minimum_size = Vector2(120, 44)
 	close_btn.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	close_btn.position = Vector2(-140, 10)
+	close_btn.position = Vector2(-140, 14)
 	close_btn.pressed.connect(func(): toggle())
 	panel.add_child(close_btn)
 
+	var weapon_card := PanelContainer.new()
+	weapon_card.position = Vector2(20, 66)
+	weapon_card.size = Vector2(440, 0)
+	weapon_card.add_theme_stylebox_override("panel", GameTheme.panel_style(GameTheme.BG_PANEL_LIGHT, 12))
+	panel.add_child(weapon_card)
+
+	weapon_lbl = Label.new()
+	weapon_lbl.add_theme_color_override("font_color", GameTheme.ACCENT)
+	weapon_card.add_child(weapon_lbl)
+
+	var gold_card := PanelContainer.new()
+	gold_card.position = Vector2(20, 122)
+	gold_card.size = Vector2(440, 0)
+	gold_card.add_theme_stylebox_override("panel", GameTheme.panel_style(GameTheme.BG_PANEL_LIGHT, 12))
+	panel.add_child(gold_card)
+
+	gold_lbl = Label.new()
+	gold_lbl.add_theme_color_override("font_color", GameTheme.XP_COLOR)
+	gold_card.add_child(gold_lbl)
+
 	var scroll := ScrollContainer.new()
-	scroll.position = Vector2(14, 64)
-	scroll.size = Vector2(432, 520)
+	scroll.position = Vector2(20, 182)
+	scroll.size = Vector2(440, 340)
 	panel.add_child(scroll)
 
 	content = VBoxContainer.new()
-	content.custom_minimum_size = Vector2(410, 0)
+	content.custom_minimum_size = Vector2(420, 0)
+	content.add_theme_constant_override("separation", 8)
 	scroll.add_child(content)
 
 	GameManager.inventory_changed.connect(_refresh)
@@ -52,31 +76,41 @@ func toggle() -> void:
 
 
 func _refresh() -> void:
+	var weapon_item: Dictionary = ItemData.get_item(GameManager.equipped_weapon)
+	weapon_lbl.text = "Ausgerüstet: %s" % weapon_item.get("name", "-")
+	gold_lbl.text = "Gold: %d Kupfermünzen" % GameManager.gold
+
 	for c in content.get_children():
 		c.queue_free()
 
-	var weapon_lbl := Label.new()
-	var weapon_item: Dictionary = ItemData.get_item(GameManager.equipped_weapon)
-	weapon_lbl.text = "Ausgerüstet: %s" % weapon_item.get("name", "-")
-	content.add_child(weapon_lbl)
-	content.add_child(HSeparator.new())
+	if GameManager.inventory.is_empty():
+		var empty_lbl := Label.new()
+		empty_lbl.text = "Dein Beutel ist leer."
+		empty_lbl.add_theme_color_override("font_color", GameTheme.TEXT_MUTED)
+		content.add_child(empty_lbl)
+		return
 
 	for item_id in GameManager.inventory.keys():
 		var item: Dictionary = ItemData.get_item(item_id)
-		var row := HBoxContainer.new()
+		var row := PanelContainer.new()
+		row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_theme_stylebox_override("panel", GameTheme.panel_style(GameTheme.BG_PANEL_LIGHT, 10))
+
+		var hbox := HBoxContainer.new()
+		hbox.add_theme_constant_override("separation", 12)
+		row.add_child(hbox)
+
 		var icon := TextureRect.new()
 		var tex_path: String = item.get("icon", "")
 		if tex_path != "":
 			icon.texture = load(tex_path)
-		icon.custom_minimum_size = Vector2(32, 32)
+		icon.custom_minimum_size = Vector2(36, 36)
 		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		row.add_child(icon)
-		var lbl := Label.new()
-		lbl.text = " %s x%d" % [item.get("name", item_id), GameManager.inventory[item_id]]
-		row.add_child(lbl)
-		content.add_child(row)
+		hbox.add_child(icon)
 
-	content.add_child(HSeparator.new())
-	var gold_lbl := Label.new()
-	gold_lbl.text = "Gold: %d Kupfermünzen" % GameManager.gold
-	content.add_child(gold_lbl)
+		var lbl := Label.new()
+		lbl.text = "%s  x%d" % [item.get("name", item_id), GameManager.inventory[item_id]]
+		lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		hbox.add_child(lbl)
+
+		content.add_child(row)
