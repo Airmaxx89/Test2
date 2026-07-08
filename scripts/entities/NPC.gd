@@ -11,6 +11,7 @@ var marker: Label3D
 func setup(id: String, name_str: String) -> void:
 	npc_id = id
 	display_name = name_str
+	add_to_group("npc")
 
 	var model := CharacterModel.build(Color(0.85, 0.7, 0.55), Color(0.45, 0.35, 0.55))
 	add_child(model)

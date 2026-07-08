@@ -2,7 +2,7 @@ extends Node
 ## Central player-state singleton: race/class, level & XP, health/resource,
 ## inventory and gold. Pure game-state logic, no rendering.
 
-signal health_changed(current: int, max_value: int)
+signal health_changed(current: float, max_value: float)
 signal resource_changed(current: float, max_value: float)
 signal xp_changed(current: int, needed: int)
 signal level_changed(new_level: int)
@@ -59,23 +59,19 @@ func setup_character(race: String, cls: String) -> void:
 
 
 func _recalc_stats() -> void:
+	# Callers always set health/resource explicitly right after (full heal on
+	# level-up, or the saved value on load), so this only needs to compute
+	# the new caps - no need to carry over a health/resource delta here.
 	var cls_data: Dictionary = ClassData.CLASSES[class_id]
 	var race_data: Dictionary = RaceData.RACES[race_id]
-	var prev_max_health := max_health
-	var prev_max_resource := max_resource
 	max_health = float(cls_data["base_health"] + cls_data["health_per_level"] * (level - 1) + race_data["stat_mods"]["health"])
 	max_resource = float(cls_data["resource_base"] + race_data["stat_mods"]["mana"])
-	if prev_max_health > 0.0:
-		health = min(max_health, health + (max_health - prev_max_health))
-	if prev_max_resource > 0.0:
-		resource = min(max_resource, resource + (max_resource - prev_max_resource))
 
 
-func get_stat(name: String) -> int:
-	var cls_data: Dictionary = ClassData.CLASSES[class_id]
+func get_stat(stat_name: String) -> int:
 	var race_data: Dictionary = RaceData.RACES[race_id]
 	var base := 5 + level
-	return base + int(race_data["stat_mods"].get(name, 0))
+	return base + int(race_data["stat_mods"].get(stat_name, 0))
 
 
 func add_xp(amount: int) -> void:
@@ -113,6 +109,21 @@ func spend_resource(amount: float) -> bool:
 		return false
 	resource -= amount
 	resource_changed.emit(resource, max_resource)
+	return true
+
+
+func use_consumable(item_id: String) -> bool:
+	var item: Dictionary = ItemData.get_item(item_id)
+	if item.get("type", "") != "consumable":
+		return false
+	if item_count(item_id) <= 0:
+		return false
+	if item.has("heal"):
+		heal(float(item["heal"]))
+	if item.has("restore_mana"):
+		resource = min(max_resource, resource + float(item["restore_mana"]))
+		resource_changed.emit(resource, max_resource)
+	remove_item(item_id, 1)
 	return true
 
 

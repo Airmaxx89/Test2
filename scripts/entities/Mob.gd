@@ -25,6 +25,12 @@ var state: String = "idle"
 var attack_cooldown: float = 0.0
 var label: Label3D
 
+var slow_timer: float = 0.0
+var slow_factor: float = 1.0
+
+const TARGETED_COLOR := Color(1.0, 0.85, 0.3)
+const NORMAL_LABEL_COLOR := Color(1.0, 1.0, 1.0)
+
 signal died()
 
 
@@ -70,6 +76,10 @@ func _physics_process(delta: float) -> void:
 	if state == "dead":
 		return
 	attack_cooldown = max(0.0, attack_cooldown - delta)
+	if slow_timer > 0.0:
+		slow_timer -= delta
+		if slow_timer <= 0.0:
+			slow_factor = 1.0
 
 	var player := get_tree().get_first_node_in_group("player")
 	if player == null:
@@ -108,12 +118,23 @@ func _move_toward(target_pos: Vector3, _delta: float) -> void:
 	dir.y = 0
 	if dir.length() > 0.1:
 		dir = dir.normalized()
-		velocity.x = dir.x * speed
-		velocity.z = dir.z * speed
+		var effective_speed := speed * slow_factor
+		velocity.x = dir.x * effective_speed
+		velocity.z = dir.z * effective_speed
 		_face(target_pos)
 	else:
 		velocity.x = 0
 		velocity.z = 0
+
+
+func apply_slow(factor: float, duration: float) -> void:
+	slow_factor = factor
+	slow_timer = duration
+
+
+func set_targeted(is_targeted: bool) -> void:
+	if label:
+		label.modulate = TARGETED_COLOR if is_targeted else NORMAL_LABEL_COLOR
 
 
 func _face(target_pos: Vector3) -> void:

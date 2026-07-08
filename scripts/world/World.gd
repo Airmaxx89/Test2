@@ -19,7 +19,6 @@ var chunks: Dictionary = {} # Vector2i -> Chunk
 var atlas_material: StandardMaterial3D
 
 var spawner_state: Dictionary = {} # spawner id -> {"alive": Array, "timer": float}
-var npcs: Array = []
 
 var player: Node3D = null
 
@@ -73,8 +72,7 @@ func _spawn_npcs() -> void:
 		var npc = npc_script.new()
 		add_child(npc)
 		npc.setup(def["id"], def["name"])
-		npc.global_position = Vector3(def["x"], get_height(def["x"], def["z"]) + 1, def["z"])
-		npcs.append(npc)
+		npc.global_position = Vector3(def["x"], get_spawn_height(def["x"], def["z"]), def["z"])
 
 
 func _init_spawners() -> void:
@@ -92,6 +90,12 @@ func get_zone(x: int) -> String:
 
 func get_biome(x: int) -> String:
 	return ZoneData.get_biome(x)
+
+
+## Ground level to stand on, raised above the water surface in swampy spots
+## so NPCs/mobs don't spawn waist-deep (or fully submerged) in water.
+func get_spawn_height(x: int, z: int) -> int:
+	return max(get_height(x, z), WATER_LEVEL) + 1
 
 
 func get_height(x: int, z: int) -> int:
@@ -343,7 +347,7 @@ func _spawn_mob(def: Dictionary, st: Dictionary, mob_script: Script) -> void:
 	var r := randf() * def["radius"]
 	var mx := int(def["x"] + cos(angle) * r)
 	var mz := int(def["z"] + sin(angle) * r)
-	var my := get_height(mx, mz) + 1
+	var my := get_spawn_height(mx, mz)
 	var mob = mob_script.new()
 	add_child(mob)
 	var mob_data: Dictionary = MobData.get_mob(def["mob"])

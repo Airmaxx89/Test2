@@ -79,3 +79,13 @@ func _on_player_died() -> void:
 	if world and world.player:
 		world.player.global_position = Vector3(0, world.get_height(0, 0) + 2, 0)
 		world.player.velocity = Vector3.ZERO
+	if hud:
+		hud.show_message("Du wurdest besiegt und nach Eichenfeld zurückgebracht.", GameTheme.HP_COLOR)
+
+
+func _notification(what: int) -> void:
+	# Android backgrounds/pauses apps far more often than it fully quits
+	# them, so save on both to avoid losing progress between sessions.
+	if what == NOTIFICATION_APPLICATION_PAUSED or what == NOTIFICATION_WM_CLOSE_REQUEST:
+		if GameManager.character_created:
+			SaveManager.save_game()

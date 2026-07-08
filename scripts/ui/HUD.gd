@@ -8,6 +8,14 @@ var level_label: Label
 var gold_label: Label
 var zone_label: Label
 
+var target_panel: Panel
+var target_name_label: Label
+var target_health_bar: ProgressBar
+
+var toast_panel: Panel
+var toast_label: Label
+var toast_tween: Tween
+
 var quest_log_ui: Node
 var inventory_ui: Node
 
@@ -74,6 +82,44 @@ func _ready() -> void:
 	zone_label.add_theme_color_override("font_color", GameTheme.ACCENT)
 	zone_panel.add_child(zone_label)
 
+	target_panel = Panel.new()
+	target_panel.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	target_panel.position = Vector2(-150, 70)
+	target_panel.size = Vector2(300, 60)
+	target_panel.custom_minimum_size = Vector2(300, 60)
+	target_panel.visible = false
+	root.add_child(target_panel)
+
+	target_name_label = Label.new()
+	target_name_label.position = Vector2(14, 6)
+	target_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	target_name_label.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	target_name_label.add_theme_font_size_override("font_size", 16)
+	target_panel.add_child(target_name_label)
+
+	target_health_bar = ProgressBar.new()
+	target_health_bar.theme_type_variation = "HealthBar"
+	target_health_bar.custom_minimum_size = Vector2(272, 14)
+	target_health_bar.position = Vector2(14, 32)
+	target_health_bar.show_percentage = false
+	target_panel.add_child(target_health_bar)
+
+	toast_panel = Panel.new()
+	toast_panel.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	toast_panel.position = Vector2(-260, 140)
+	toast_panel.size = Vector2(520, 56)
+	toast_panel.custom_minimum_size = Vector2(520, 56)
+	toast_panel.visible = false
+	toast_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(toast_panel)
+
+	toast_label = Label.new()
+	toast_label.set_anchors_preset(Control.PRESET_FULL_RECT)
+	toast_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	toast_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	toast_label.add_theme_font_size_override("font_size", 20)
+	toast_panel.add_child(toast_label)
+
 	var quest_btn := Button.new()
 	quest_btn.text = "Quests"
 	quest_btn.custom_minimum_size = Vector2(100, 48)
@@ -102,6 +148,10 @@ func _ready() -> void:
 	GameManager.level_changed.connect(_on_level_changed)
 	GameManager.gold_changed.connect(_on_gold_changed)
 
+	GameManager.level_changed.connect(func(new_level): show_message("Level %d erreicht!" % new_level, GameTheme.XP_COLOR))
+	QuestManager.quest_started.connect(func(quest_id): show_message("Neue Quest: %s" % QuestData.get_quest(quest_id)["title"], GameTheme.ACCENT))
+	QuestManager.quest_completed.connect(func(quest_id): show_message("Quest abgeschlossen: %s" % QuestData.get_quest(quest_id)["title"], GameTheme.ACCENT_BRIGHT))
+
 	_on_health_changed(GameManager.health, GameManager.max_health)
 	_on_resource_changed(GameManager.resource, GameManager.max_resource)
 	_on_xp_changed(GameManager.xp, GameManager.xp_required(GameManager.level))
@@ -111,9 +161,36 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
 	var player := get_tree().get_first_node_in_group("player")
-	if player:
-		var zone_id: String = ZoneData.get_zone(int(player.global_position.x))
-		zone_label.text = ZoneData.ZONES[zone_id]["name"]
+	if player == null:
+		return
+	var zone_id: String = ZoneData.get_zone(int(player.global_position.x))
+	zone_label.text = ZoneData.ZONES[zone_id]["name"]
+	_update_target_frame(player)
+
+
+func _update_target_frame(player: Node) -> void:
+	var target = player.target_mob
+	if target == null or not is_instance_valid(target):
+		target_panel.visible = false
+		return
+	target_panel.visible = true
+	var mob_data: Dictionary = MobData.get_mob(target.mob_id)
+	target_name_label.text = "%s (Lvl %d)" % [mob_data.get("name", "?"), target.level]
+	target_health_bar.max_value = target.max_health
+	target_health_bar.value = target.health
+
+
+func show_message(text: String, color: Color = GameTheme.TEXT) -> void:
+	toast_label.text = text
+	toast_label.add_theme_color_override("font_color", color)
+	toast_panel.visible = true
+	toast_panel.modulate = Color(1, 1, 1, 1)
+	if toast_tween:
+		toast_tween.kill()
+	toast_tween = create_tween()
+	toast_tween.tween_interval(2.0)
+	toast_tween.tween_property(toast_panel, "modulate:a", 0.0, 0.6)
+	toast_tween.tween_callback(func(): toast_panel.visible = false)
 
 
 func _on_health_changed(current: float, max_value: float) -> void:

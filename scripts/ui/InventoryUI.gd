@@ -111,6 +111,18 @@ func _refresh() -> void:
 		var lbl := Label.new()
 		lbl.text = "%s  x%d" % [item.get("name", item_id), GameManager.inventory[item_id]]
 		lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		hbox.add_child(lbl)
 
+		if item.get("type", "") == "consumable":
+			var use_btn := Button.new()
+			use_btn.text = "Benutzen"
+			use_btn.custom_minimum_size = Vector2(110, 40)
+			use_btn.pressed.connect(_make_use_cb(item_id))
+			hbox.add_child(use_btn)
+
 		content.add_child(row)
+
+
+func _make_use_cb(item_id: String) -> Callable:
+	return func(): GameManager.use_consumable(item_id)

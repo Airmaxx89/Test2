@@ -11,6 +11,12 @@ var active_quests: Dictionary = {}
 var completed_quests: Array = []
 
 
+func _ready() -> void:
+	# Collect-objectives read live inventory counts, so the quest log needs
+	# to refresh whenever the inventory changes (picked up, sold, used, ...).
+	GameManager.inventory_changed.connect(notify_inventory_change)
+
+
 func is_active(quest_id: String) -> bool:
 	return active_quests.has(quest_id)
 

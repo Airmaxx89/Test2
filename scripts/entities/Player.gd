@@ -9,6 +9,12 @@ const CAMERA_MAX_PITCH := deg_to_rad(15)
 const INTERACT_RANGE := 3.0
 const MELEE_RANGE := 2.2
 const RANGED_MAX_RANGE := 16.0
+const AOE_RADIUS := 6.0
+const SHIELD_BLOCK_DURATION := 4.0
+const SHIELD_BLOCK_REDUCTION := 0.5
+const EVADE_DURATION := 1.2
+const FROST_SLOW_FACTOR := 0.5
+const FROST_SLOW_DURATION := 3.0
 
 var camera_pivot: Node3D
 var camera: Camera3D
@@ -21,6 +27,9 @@ var camera_distance: float = 6.0
 var attack_cooldown: float = 0.0
 var nearby_npc: Node3D = null
 var target_mob: Node3D = null
+
+var block_timer: float = 0.0
+var evade_timer: float = 0.0
 
 signal target_changed(mob: Node3D)
 
@@ -99,6 +108,8 @@ func _handle_movement(delta: float) -> void:
 
 func _handle_actions(delta: float) -> void:
 	attack_cooldown = max(0.0, attack_cooldown - delta)
+	block_timer = max(0.0, block_timer - delta)
+	evade_timer = max(0.0, evade_timer - delta)
 	_update_target_and_nearby_npc()
 
 	if InputState.consume_attack() and attack_cooldown <= 0.0:
@@ -114,12 +125,9 @@ func _handle_actions(delta: float) -> void:
 
 
 func _update_target_and_nearby_npc() -> void:
-	var world := get_parent()
 	nearby_npc = null
 	var closest_npc_dist := INTERACT_RANGE
-	for npc in world.npcs:
-		if not is_instance_valid(npc):
-			continue
+	for npc in get_tree().get_nodes_in_group("npc"):
 		var d: float = global_position.distance_to(npc.global_position)
 		if d < closest_npc_dist:
 			closest_npc_dist = d
@@ -127,14 +135,18 @@ func _update_target_and_nearby_npc() -> void:
 
 	var closest_mob: Node3D = null
 	var closest_mob_dist := RANGED_MAX_RANGE
-	for child in world.get_children():
-		if child.is_in_group("mob") and is_instance_valid(child):
-			var d: float = global_position.distance_to(child.global_position)
-			if d < closest_mob_dist:
-				closest_mob_dist = d
-				closest_mob = child
+	for mob in get_tree().get_nodes_in_group("mob"):
+		var d: float = global_position.distance_to(mob.global_position)
+		if d < closest_mob_dist:
+			closest_mob_dist = d
+			closest_mob = mob
+
 	if closest_mob != target_mob:
+		if target_mob != null and is_instance_valid(target_mob):
+			target_mob.set_targeted(false)
 		target_mob = closest_mob
+		if target_mob != null:
+			target_mob.set_targeted(true)
 		target_changed.emit(target_mob)
 
 
@@ -163,7 +175,8 @@ func _perform_ability(index: int) -> void:
 	GameManager.trigger_cooldown(ab["id"], ab["cooldown"])
 
 	if ab["range"] == "self":
-		return # defensive/utility abilities: effect hook point for future expansion
+		_apply_self_ability(ab["id"])
+		return
 
 	if target_mob == null:
 		return
@@ -173,13 +186,21 @@ func _perform_ability(index: int) -> void:
 		return
 	var dmg := int(GameManager.get_attack_damage() * float(ab["damage_mult"]))
 	target_mob.take_damage(dmg)
+	if ab["id"] == "frostschock":
+		target_mob.apply_slow(FROST_SLOW_FACTOR, FROST_SLOW_DURATION)
 
 	if ab["range"].ends_with("aoe"):
-		var world := get_parent()
-		for child in world.get_children():
-			if child.is_in_group("mob") and child != target_mob and is_instance_valid(child):
-				if global_position.distance_to(child.global_position) <= max_range:
-					child.take_damage(dmg)
+		for mob in get_tree().get_nodes_in_group("mob"):
+			if mob != target_mob and global_position.distance_to(mob.global_position) <= AOE_RADIUS:
+				mob.take_damage(dmg)
+
+
+func _apply_self_ability(ability_id: String) -> void:
+	match ability_id:
+		"schildblock":
+			block_timer = SHIELD_BLOCK_DURATION
+		"ausweichrolle":
+			evade_timer = EVADE_DURATION
 
 
 func _perform_interact() -> void:
@@ -197,4 +218,9 @@ func _check_reach_locations() -> void:
 
 
 func take_damage(amount: float) -> void:
-	GameManager.take_damage(amount)
+	if evade_timer > 0.0:
+		return
+	var final_amount := amount
+	if block_timer > 0.0:
+		final_amount *= (1.0 - SHIELD_BLOCK_REDUCTION)
+	GameManager.take_damage(final_amount)

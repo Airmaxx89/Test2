@@ -5,6 +5,8 @@ signal new_game_pressed()
 signal continue_pressed()
 
 var continue_btn: Button
+var confirm_panel: Panel
+var has_save: bool = false
 
 
 func _ready() -> void:
@@ -47,7 +49,7 @@ func _ready() -> void:
 	new_btn.theme_type_variation = "PrimaryButton"
 	new_btn.custom_minimum_size = Vector2(272, 64)
 	new_btn.position = Vector2(24, 24)
-	new_btn.pressed.connect(func(): new_game_pressed.emit())
+	new_btn.pressed.connect(_on_new_game_pressed)
 	panel.add_child(new_btn)
 
 	continue_btn = Button.new()
@@ -67,6 +69,51 @@ func _ready() -> void:
 	footer.size = Vector2(320, 30)
 	bg.add_child(footer)
 
+	_build_confirm_dialog(bg)
+
+
+func _build_confirm_dialog(bg: Control) -> void:
+	confirm_panel = Panel.new()
+	confirm_panel.custom_minimum_size = Vector2(420, 220)
+	confirm_panel.set_anchors_preset(Control.PRESET_CENTER)
+	confirm_panel.position = Vector2(-210, -110)
+	confirm_panel.visible = false
+	bg.add_child(confirm_panel)
+
+	var msg := Label.new()
+	msg.text = "Ein Spielstand existiert bereits.\nWirklich ein neues Spiel starten?\nDer bisherige Fortschritt geht verloren."
+	msg.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	msg.autowrap_mode = TextServer.AUTOWRAP_WORD
+	msg.position = Vector2(20, 20)
+	msg.size = Vector2(380, 100)
+	confirm_panel.add_child(msg)
+
+	var cancel_btn := Button.new()
+	cancel_btn.text = "Abbrechen"
+	cancel_btn.custom_minimum_size = Vector2(180, 56)
+	cancel_btn.position = Vector2(20, 140)
+	cancel_btn.pressed.connect(func(): confirm_panel.visible = false)
+	confirm_panel.add_child(cancel_btn)
+
+	var confirm_btn := Button.new()
+	confirm_btn.text = "Ja, neues Spiel"
+	confirm_btn.theme_type_variation = "PrimaryButton"
+	confirm_btn.custom_minimum_size = Vector2(180, 56)
+	confirm_btn.position = Vector2(220, 140)
+	confirm_btn.pressed.connect(func():
+		confirm_panel.visible = false
+		new_game_pressed.emit()
+	)
+	confirm_panel.add_child(confirm_btn)
+
+
+func _on_new_game_pressed() -> void:
+	if has_save:
+		confirm_panel.visible = true
+	else:
+		new_game_pressed.emit()
+
 
 func set_continue_enabled(enabled: bool) -> void:
+	has_save = enabled
 	continue_btn.disabled = not enabled
