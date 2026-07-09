@@ -31,6 +31,7 @@ var target_mob: Node3D = null
 var block_timer: float = 0.0
 var evade_timer: float = 0.0
 var walk_phase: float = 0.0
+var idle_phase: float = 0.0
 
 signal target_changed(mob: Node3D)
 
@@ -56,6 +57,7 @@ func _ready() -> void:
 
 	camera = Camera3D.new()
 	camera.position = Vector3(0, 0, camera_distance)
+	camera.fov = 65.0
 	camera.current = true
 	camera_pivot.add_child(camera)
 
@@ -104,7 +106,8 @@ func _handle_movement(delta: float) -> void:
 
 	if is_moving and is_on_floor():
 		walk_phase += delta * 10.0
-	CharacterModel.animate(model, walk_phase, is_moving and is_on_floor())
+	idle_phase += delta
+	CharacterModel.animate(model, walk_phase, is_moving and is_on_floor(), idle_phase)
 
 
 func _handle_actions(delta: float) -> void:

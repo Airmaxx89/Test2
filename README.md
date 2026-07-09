@@ -112,15 +112,26 @@ Skript): `python3 tools/generate_textures.py` (benötigt `pillow`,
   Voxelwelt räumlich wirkt statt flach schattiert.
 - **Transparentes Wasser** als eigene Mesh-Fläche/Material statt opakem
   Textur-Block.
-- **Lauf-/Idle-Animation** für Spieler und Monster (Arme/Beine schwingen
-  gegenläufig beim Gehen).
+- **Lauf-/Idle-Animation** für Spieler, NPCs und Monster (Arme/Beine schwingen
+  gegenläufig beim Gehen, sanftes Atmen/Schwanken im Stand statt starrer
+  Ruhepose).
 - **Sonne mit Schatten + SSAO** in der Spielwelt (`default_env.tres`) für
   spürbar mehr Tiefe.
+- **Charaktermodelle** (`CharacterModel.gd`): runde, artikulierte Figuren aus
+  Kugeln/Kapseln/Zylindern (Kopf mit Augen, Hände/Füße) statt flacher Boxen,
+  für einen deutlich moderneren Look. NPCs bekommen zusätzlich eine eigene,
+  aus einer kleinen Palette abgeleitete Haut-/Kleidungsfarbe statt eines
+  einzigen Einheitslooks.
+- **Kantenglättung** (MSAA 4x + FXAA, `project.godot`) für saubere Silhouetten
+  an den neuen runden Formen; höher aufgelöste Terrain-Texturen (32px statt
+  16px pro Kachel, `tools/generate_textures.py`).
 
 Falls die Performance auf älteren/schwächeren Android-Geräten leidet, sind
-die ersten Stellschrauben: `ssao_enabled` in `default_env.tres` auf `false`,
-`shadow_enabled` der Sonne in `World._build_sun()` auf `false`, sowie
-`LOAD_RADIUS`/`CHUNKS_PER_FRAME` in `World.gd` reduzieren.
+die ersten Stellschrauben: `anti_aliasing/quality/screen_space_aa` und danach
+`anti_aliasing/quality/msaa_3d` in `project.godot` reduzieren/deaktivieren,
+`ssao_enabled` in `default_env.tres` auf `false`, `shadow_enabled` der Sonne
+in `World._build_sun()` auf `false`, sowie `LOAD_RADIUS`/`CHUNKS_PER_FRAME`
+in `World.gd` reduzieren.
 
 ## Bekannte Grenzen dieser ersten Version
 

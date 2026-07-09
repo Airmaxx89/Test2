@@ -26,6 +26,7 @@ var attack_cooldown: float = 0.0
 var label: Label3D
 var model: Node3D
 var walk_phase: float = 0.0
+var idle_phase: float = 0.0
 
 var slow_timer: float = 0.0
 var slow_factor: float = 1.0
@@ -118,8 +119,9 @@ func _physics_process(delta: float) -> void:
 
 	if is_walking:
 		walk_phase += delta * 10.0
+	idle_phase += delta
 	if model:
-		CharacterModel.animate(model, walk_phase, is_walking)
+		CharacterModel.animate(model, walk_phase, is_walking, idle_phase)
 
 
 func _move_toward(target_pos: Vector3, _delta: float) -> void:
