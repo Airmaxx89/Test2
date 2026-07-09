@@ -24,6 +24,8 @@ var xp_value: int
 var state: String = "idle"
 var attack_cooldown: float = 0.0
 var label: Label3D
+var model: Node3D
+var walk_phase: float = 0.0
 
 var slow_timer: float = 0.0
 var slow_factor: float = 1.0
@@ -50,7 +52,7 @@ func setup(id: String, lvl: int, w: Node) -> void:
 
 	add_to_group("mob")
 
-	var model := CharacterModel.build(data["color"], data["color"].darkened(0.25))
+	model = CharacterModel.build(data["color"], data["color"].darkened(0.25))
 	if is_boss:
 		model.scale = Vector3(1.7, 1.7, 1.7)
 	add_child(model)
@@ -86,6 +88,7 @@ func _physics_process(delta: float) -> void:
 		return
 	var d: float = global_position.distance_to(player.global_position)
 
+	var is_walking := false
 	match state:
 		"idle":
 			if aggressive and d < AGGRO_RANGE:
@@ -97,6 +100,7 @@ func _physics_process(delta: float) -> void:
 				state = "attack"
 			else:
 				_move_toward(player.global_position, delta)
+				is_walking = true
 		"attack":
 			if d > MELEE_RANGE * 1.4:
 				state = "chase"
@@ -111,6 +115,11 @@ func _physics_process(delta: float) -> void:
 	if not is_on_floor():
 		velocity.y -= ProjectSettings.get_setting("physics/3d/default_gravity") * delta
 	move_and_slide()
+
+	if is_walking:
+		walk_phase += delta * 10.0
+	if model:
+		CharacterModel.animate(model, walk_phase, is_walking)
 
 
 func _move_toward(target_pos: Vector3, _delta: float) -> void:

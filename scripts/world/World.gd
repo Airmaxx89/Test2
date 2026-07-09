@@ -17,6 +17,7 @@ var noise: FastNoiseLite
 var overrides: Dictionary = {} # Vector3i -> Block id
 var chunks: Dictionary = {} # Vector2i -> Chunk
 var atlas_material: StandardMaterial3D
+var water_material: StandardMaterial3D
 
 var spawner_state: Dictionary = {} # spawner id -> {"alive": Array, "timer": float}
 
@@ -34,6 +35,7 @@ func _ready() -> void:
 	noise.frequency = 0.02
 	noise.fractal_octaves = 3
 	_build_atlas_material()
+	_build_sun()
 	_generate_overrides()
 	_spawn_npcs()
 	_init_spawners()
@@ -47,12 +49,39 @@ func _ready() -> void:
 
 func _build_atlas_material() -> void:
 	var tex := load("res://assets/textures/atlas.png")
+
 	var mat := StandardMaterial3D.new()
 	mat.albedo_texture = tex
 	mat.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
 	mat.cull_mode = BaseMaterial3D.CULL_DISABLED
 	mat.roughness = 1.0
+	mat.vertex_color_use_as_albedo = true
 	atlas_material = mat
+
+	var water_mat := StandardMaterial3D.new()
+	water_mat.albedo_texture = tex
+	water_mat.albedo_color = Color(1.0, 1.0, 1.0, 0.65)
+	water_mat.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
+	water_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+	water_mat.roughness = 0.05
+	water_mat.metallic = 0.1
+	water_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	water_mat.vertex_color_use_as_albedo = true
+	water_material = water_mat
+
+
+## A fixed, world-space sun. This must NOT be parented to the player - the
+## player rotates constantly to face different directions, and a light
+## parented to a rotating node would visibly swing the sun/shadows around
+## with the camera instead of keeping a stable world direction.
+func _build_sun() -> void:
+	var sun := DirectionalLight3D.new()
+	sun.rotation_degrees = Vector3(-55, -35, 0)
+	sun.light_color = Color(1.0, 0.97, 0.9)
+	sun.light_energy = 1.15
+	sun.shadow_enabled = true
+	sun.directional_shadow_max_distance = float(LOAD_RADIUS * CHUNK_SIZE)
+	add_child(sun)
 
 
 func _spawn_player() -> void:

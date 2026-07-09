@@ -30,6 +30,7 @@ var target_mob: Node3D = null
 
 var block_timer: float = 0.0
 var evade_timer: float = 0.0
+var walk_phase: float = 0.0
 
 signal target_changed(mob: Node3D)
 
@@ -57,11 +58,6 @@ func _ready() -> void:
 	camera.position = Vector3(0, 0, camera_distance)
 	camera.current = true
 	camera_pivot.add_child(camera)
-
-	var light := DirectionalLight3D.new()
-	light.rotation_degrees = Vector3(-55, -35, 0)
-	light.shadow_enabled = false
-	add_child(light)
 
 
 func _physics_process(delta: float) -> void:
@@ -93,7 +89,8 @@ func _handle_movement(delta: float) -> void:
 	var move := InputState.move_vector
 	var input_dir := Vector3(move.x, 0, move.y)
 	var move_dir := input_dir.rotated(Vector3.UP, yaw)
-	if move_dir.length() > 0.01:
+	var is_moving := move_dir.length() > 0.01
+	if is_moving:
 		move_dir = move_dir.normalized()
 		velocity.x = move_dir.x * SPEED
 		velocity.z = move_dir.z * SPEED
@@ -104,6 +101,10 @@ func _handle_movement(delta: float) -> void:
 		velocity.z = move_toward(velocity.z, 0.0, SPEED * 4.0 * delta)
 
 	move_and_slide()
+
+	if is_moving and is_on_floor():
+		walk_phase += delta * 10.0
+	CharacterModel.animate(model, walk_phase, is_moving and is_on_floor())
 
 
 func _handle_actions(delta: float) -> void:

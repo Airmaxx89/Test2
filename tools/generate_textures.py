@@ -7,6 +7,7 @@ noise dithering) - no copyrighted or third-party artwork is used or referenced.
 Run: python3 tools/generate_textures.py
 Output: assets/textures/atlas.png, assets/textures/icons/*.png
 """
+import math
 import random
 from pathlib import Path
 from PIL import Image
@@ -46,21 +47,60 @@ def speckle(img, color, count, size=1):
                 px[x + dx, y + dy] = color
 
 
+def add_strokes(img, color, count, seed_offset, min_len=2, max_len=4, directions=None):
+    """Short 1px-wide line strokes - reads as grass blades, wood grain,
+    cracks, etc. depending on color/direction, much less uniform than
+    per-pixel speckle noise."""
+    px = img.load()
+    w, h = img.size
+    r = random.Random(seed_offset + 4242)
+    if directions is None:
+        directions = [(0, 1), (0, -1)]
+    for _ in range(count):
+        x, y = r.randint(0, w - 1), r.randint(0, h - 1)
+        dx, dy = r.choice(directions)
+        length = r.randint(min_len, max_len)
+        for i in range(length):
+            nx, ny = x + dx * i, y + dy * i
+            if 0 <= nx < w and 0 <= ny < h:
+                px[nx, ny] = color
+
+
+def edge_shade(img, strength=24):
+    """Darkens the outer 1-2px border of a tile so adjacent block faces
+    read as distinct blocks even under flat/ambient light - a classic
+    pixel-art trick that pairs with the engine's per-vertex ambient
+    occlusion for a much less 'flat' blocky look."""
+    px = img.load()
+    w, h = img.size
+    for y in range(h):
+        for x in range(w):
+            edge_dist = min(x, w - 1 - x, y, h - 1 - y)
+            if edge_dist == 0:
+                px[x, y] = shade(px[x, y], -strength)
+            elif edge_dist == 1:
+                px[x, y] = shade(px[x, y], -strength // 2)
+    return img
+
+
 def tile_grass_top():
     img = Image.new("RGB", (TILE, TILE))
-    noisy_fill(img, (86, 141, 63), 14, 1)
-    speckle(img, (70, 120, 50), 10)
-    speckle(img, (110, 160, 80), 8)
+    noisy_fill(img, (86, 141, 63), 12, 1)
+    speckle(img, (70, 120, 50), 8)
+    add_strokes(img, (108, 165, 78), 10, 1, 2, 3, [(0, -1), (1, -1), (-1, -1)])
+    add_strokes(img, (62, 104, 46), 6, 101, 2, 3, [(0, 1), (1, 1)])
     return img
 
 
 def tile_grass_side():
     img = Image.new("RGB", (TILE, TILE))
-    noisy_fill(img, (110, 82, 52), 10, 2)
+    noisy_fill(img, (110, 82, 52), 9, 2)
+    speckle(img, (90, 65, 40), 8)
     for y in range(0, 5):
         for x in range(TILE):
             img.putpixel((x, y), shade((86, 141, 63), random.randint(-10, 10)))
-    speckle(img, (70, 120, 50), 6)
+    add_strokes(img, (62, 104, 46), 5, 2, 1, 2, [(0, 1)])
+    speckle(img, (110, 160, 80), 4)
     return img
 
 
@@ -68,114 +108,132 @@ def tile_dirt():
     img = Image.new("RGB", (TILE, TILE))
     noisy_fill(img, (110, 82, 52), 12, 3)
     speckle(img, (90, 65, 40), 12)
+    speckle(img, (128, 98, 64), 6)
     return img
 
 
 def tile_stone():
     img = Image.new("RGB", (TILE, TILE))
-    noisy_fill(img, (128, 128, 132), 10, 4)
-    speckle(img, (100, 100, 105), 14)
-    speckle(img, (150, 150, 155), 8)
+    noisy_fill(img, (128, 128, 132), 9, 4)
+    speckle(img, (100, 100, 105), 12)
+    speckle(img, (154, 154, 160), 8)
+    add_strokes(img, (92, 92, 98), 3, 4, 3, 6, [(1, 1), (1, -1), (-1, 1)])
     return img
 
 
 def tile_sand():
     img = Image.new("RGB", (TILE, TILE))
-    noisy_fill(img, (216, 196, 140), 8, 5)
+    noisy_fill(img, (216, 196, 140), 7, 5)
     speckle(img, (196, 176, 120), 10)
+    speckle(img, (232, 214, 164), 6)
     return img
 
 
 def tile_water():
     img = Image.new("RGB", (TILE, TILE))
-    noisy_fill(img, (58, 96, 158), 10, 6)
+    noisy_fill(img, (52, 92, 156), 8, 6)
     for x in range(0, TILE, 4):
         for y in range(TILE):
             if (x + y) % 8 < 2:
-                img.putpixel((x % TILE, y), shade((80, 120, 180), 10))
+                img.putpixel((x % TILE, y), shade((80, 124, 186), 12))
+    speckle(img, (150, 190, 230), 4)
     return img
 
 
 def tile_wood_side():
     img = Image.new("RGB", (TILE, TILE))
-    noisy_fill(img, (96, 66, 40), 8, 7)
+    noisy_fill(img, (96, 66, 40), 7, 7)
     for x in range(0, TILE, 3):
+        band = -6 if x % 6 else -12
         for y in range(TILE):
-            img.putpixel((x, y), shade((80, 54, 32), -6))
+            img.putpixel((x, y), shade((80, 54, 32), band))
+    add_strokes(img, (70, 46, 26), 5, 7, 4, 8, [(0, 1)])
     return img
 
 
 def tile_wood_top():
     img = Image.new("RGB", (TILE, TILE))
-    noisy_fill(img, (150, 110, 70), 6, 8)
+    noisy_fill(img, (150, 110, 70), 5, 8)
     cx, cy = TILE // 2, TILE // 2
-    for radius in range(1, 8, 2):
-        for angle in range(0, 360, 8):
-            import math
+    for radius in range(1, 8):
+        ring_shade = -10 if radius % 2 else -3
+        for angle in range(0, 360, 6):
             x = int(cx + radius * math.cos(math.radians(angle)))
             y = int(cy + radius * math.sin(math.radians(angle)))
             if 0 <= x < TILE and 0 <= y < TILE:
-                img.putpixel((x, y), shade((120, 85, 50), -10))
+                img.putpixel((x, y), shade((120, 85, 50), ring_shade))
     return img
 
 
 def tile_leaves():
     img = Image.new("RGB", (TILE, TILE))
-    noisy_fill(img, (58, 104, 48), 16, 9)
-    speckle(img, (40, 80, 35), 20)
-    speckle(img, (80, 130, 60), 10)
+    noisy_fill(img, (58, 104, 48), 14, 9)
+    speckle(img, (40, 80, 35), 18)
+    speckle(img, (80, 130, 60), 12)
+    speckle(img, (34, 66, 30), 6, size=2)
     return img
 
 
 def tile_snow():
     img = Image.new("RGB", (TILE, TILE))
-    noisy_fill(img, (232, 236, 240), 6, 10)
+    noisy_fill(img, (232, 236, 240), 5, 10)
     speckle(img, (210, 215, 222), 8)
+    speckle(img, (250, 253, 255), 5)
     return img
 
 
 def tile_path():
     img = Image.new("RGB", (TILE, TILE))
-    noisy_fill(img, (150, 130, 100), 10, 11)
-    speckle(img, (120, 100, 75), 14)
+    noisy_fill(img, (150, 130, 100), 9, 11)
+    speckle(img, (120, 100, 75), 10)
+    speckle(img, (170, 150, 118), 8)
+    speckle(img, (100, 84, 62), 4, size=2)
     return img
 
 
 def tile_planks():
     img = Image.new("RGB", (TILE, TILE))
-    noisy_fill(img, (168, 128, 84), 6, 12)
+    noisy_fill(img, (168, 128, 84), 5, 12)
     for y in range(0, TILE, 4):
         for x in range(TILE):
             img.putpixel((x, y), shade((130, 95, 60), -14))
+    add_strokes(img, (140, 104, 66), 6, 12, 3, 6, [(1, 0)])
     return img
 
 
 def tile_ore():
     img = tile_stone()
     speckle(img, (210, 175, 60), 6, size=1)
+    speckle(img, (235, 200, 90), 3, size=1)
     return img
 
 
 def tile_dark_stone():
     img = Image.new("RGB", (TILE, TILE))
-    noisy_fill(img, (58, 58, 64), 8, 13)
-    speckle(img, (40, 40, 46), 12)
+    noisy_fill(img, (56, 57, 66), 7, 13)
+    speckle(img, (40, 40, 48), 12)
+    speckle(img, (72, 73, 84), 6)
+    add_strokes(img, (30, 30, 36), 3, 13, 3, 6, [(1, 1), (-1, 1)])
     return img
 
 
 def tile_roof():
     img = Image.new("RGB", (TILE, TILE))
-    noisy_fill(img, (140, 60, 46), 8, 14)
-    for y in range(0, TILE, 3):
+    noisy_fill(img, (140, 60, 46), 7, 14)
+    for row, y in enumerate(range(0, TILE, 3)):
+        offset = 2 if row % 2 else 0
         for x in range(TILE):
-            img.putpixel((x, y), shade((110, 45, 34), -10))
+            shingle_shade = -10 if (x + offset) % 4 < 2 else -4
+            img.putpixel((x, y), shade((110, 45, 34), shingle_shade))
+    speckle(img, (160, 75, 55), 5)
     return img
 
 
 def tile_fachwerk():
     """Half-timber wall pattern, typical for a medieval German-style village."""
     img = Image.new("RGB", (TILE, TILE))
-    noisy_fill(img, (232, 222, 198), 6, 15)
+    noisy_fill(img, (232, 222, 198), 5, 15)
+    speckle(img, (214, 202, 172), 6)
     beam = (70, 50, 34)
     for x in range(TILE):
         img.putpixel((x, 0), beam)
@@ -184,8 +242,8 @@ def tile_fachwerk():
         img.putpixel((0, y), beam)
         img.putpixel((TILE - 1, y), beam)
     for i in range(TILE):
-        if 0 <= i < TILE and 0 <= i < TILE:
-            img.putpixel((i, i), beam)
+        img.putpixel((i, i), beam)
+        img.putpixel((TILE - 1 - i, i), beam)
     return img
 
 
@@ -200,7 +258,7 @@ COLS = 8
 ROWS = 2
 atlas = Image.new("RGB", (COLS * TILE, ROWS * TILE))
 for idx, fn in enumerate(TILES):
-    tile_img = fn()
+    tile_img = edge_shade(fn())
     x = (idx % COLS) * TILE
     y = (idx // COLS) * TILE
     atlas.paste(tile_img, (x, y))

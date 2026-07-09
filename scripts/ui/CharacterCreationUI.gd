@@ -12,10 +12,20 @@ var info_label: Label
 
 func _ready() -> void:
 	layer = 20
-	var bg := TextureRect.new()
-	bg.texture = GameTheme.background_texture(Color(0.09, 0.12, 0.09, 1), Color(0.05, 0.04, 0.03, 1))
+
+	var campfire := CampfireBackground.new()
+	add_child(campfire)
+
+	var overlay := TextureRect.new()
+	overlay.texture = GameTheme.background_texture(Color(0.03, 0.02, 0.02, 0.3), Color(0.02, 0.01, 0.01, 0.8))
+	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	overlay.stretch_mode = TextureRect.STRETCH_SCALE
+	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(overlay)
+
+	var bg := Control.new()
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
-	bg.stretch_mode = TextureRect.STRETCH_SCALE
+	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(bg)
 
 	var title := Label.new()

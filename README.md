@@ -101,6 +101,27 @@ Skript): `python3 tools/generate_textures.py` (benötigt `pillow`,
 4. Die App fordert **keine Internetberechtigung** an - sie ist bewusst rein
    offline.
 
+## Grafik-Features
+
+- **Eigenes UI-Theme** (`scripts/ui/GameTheme.gd`): dunkles Pergament/Holz-
+  Design mit abgerundeten Panels statt Godot-Standard-Controls.
+- **Lebendiges Hauptmenü**: eine kleine 3D-Szene mit Lagerfeuer, Rauch/Funken-
+  Partikeln, flackerndem Licht und zwei Dorfbewohnern läuft im Hintergrund
+  von Start- und Charaktererstellungsbildschirm (`CampfireBackground.gd`).
+- **Ambient Occlusion** pro Blockkante (`Chunk.gd`) sorgt dafür, dass die
+  Voxelwelt räumlich wirkt statt flach schattiert.
+- **Transparentes Wasser** als eigene Mesh-Fläche/Material statt opakem
+  Textur-Block.
+- **Lauf-/Idle-Animation** für Spieler und Monster (Arme/Beine schwingen
+  gegenläufig beim Gehen).
+- **Sonne mit Schatten + SSAO** in der Spielwelt (`default_env.tres`) für
+  spürbar mehr Tiefe.
+
+Falls die Performance auf älteren/schwächeren Android-Geräten leidet, sind
+die ersten Stellschrauben: `ssao_enabled` in `default_env.tres` auf `false`,
+`shadow_enabled` der Sonne in `World._build_sun()` auf `false`, sowie
+`LOAD_RADIUS`/`CHUNKS_PER_FRAME` in `World.gd` reduzieren.
+
 ## Bekannte Grenzen dieser ersten Version
 
 Diese Version wurde ohne Zugriff auf einen laufenden Godot-Editor/Emulator
@@ -109,8 +130,6 @@ prüfen:
 
 - Balancing (Schaden, XP-Kurve, Mob-Dichte) ist ein erster Wurf und sollte
   im echten Spieltest justiert werden.
-- Die UI ist bewusst schlicht (Godot-Standard-Controls) gehalten - Prioriät
-  lag auf funktionierenden Systemen statt auf Feinschliff der Optik.
 - Landschaft/Gebäude sind einfache, funktionale Voxel-Strukturen (Fachwerk-
   Dörfer, Festungsmauern) - Details wie Fenster, Möbel, mehr Gebäudevielfalt
   lassen sich leicht per `World.gd`-Overrides ergänzen.

@@ -11,11 +11,21 @@ var has_save: bool = false
 
 func _ready() -> void:
 	layer = 20
-	var bg := TextureRect.new()
-	bg.texture = GameTheme.background_texture(Color(0.09, 0.12, 0.09, 1), Color(0.05, 0.04, 0.03, 1))
-	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
-	bg.stretch_mode = TextureRect.STRETCH_SCALE
-	add_child(bg)
+
+	var campfire := CampfireBackground.new()
+	add_child(campfire)
+
+	var overlay := TextureRect.new()
+	overlay.texture = GameTheme.background_texture(Color(0.03, 0.02, 0.02, 0.25), Color(0.02, 0.01, 0.01, 0.75))
+	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	overlay.stretch_mode = TextureRect.STRETCH_SCALE
+	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(overlay)
+
+	var content := Control.new()
+	content.set_anchors_preset(Control.PRESET_FULL_RECT)
+	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(content)
 
 	var title := Label.new()
 	title.text = "NORDMARK LEGENDS"
@@ -25,7 +35,7 @@ func _ready() -> void:
 	title.set_anchors_preset(Control.PRESET_CENTER_TOP)
 	title.position = Vector2(-320, 70)
 	title.size = Vector2(640, 64)
-	bg.add_child(title)
+	content.add_child(title)
 
 	var subtitle := Label.new()
 	subtitle.text = "Ein eigenständiges Mittelalter-Rollenspiel — Königreich Eichenmark"
@@ -36,13 +46,13 @@ func _ready() -> void:
 	subtitle.set_anchors_preset(Control.PRESET_CENTER_TOP)
 	subtitle.position = Vector2(-260, 132)
 	subtitle.size = Vector2(520, 50)
-	bg.add_child(subtitle)
+	content.add_child(subtitle)
 
 	var panel := Panel.new()
 	panel.custom_minimum_size = Vector2(320, 200)
 	panel.set_anchors_preset(Control.PRESET_CENTER)
 	panel.position = Vector2(-160, -100)
-	bg.add_child(panel)
+	content.add_child(panel)
 
 	var new_btn := Button.new()
 	new_btn.text = "Neues Spiel"
@@ -67,18 +77,18 @@ func _ready() -> void:
 	footer.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
 	footer.position = Vector2(-160, -40)
 	footer.size = Vector2(320, 30)
-	bg.add_child(footer)
+	content.add_child(footer)
 
-	_build_confirm_dialog(bg)
+	_build_confirm_dialog(content)
 
 
-func _build_confirm_dialog(bg: Control) -> void:
+func _build_confirm_dialog(content: Control) -> void:
 	confirm_panel = Panel.new()
 	confirm_panel.custom_minimum_size = Vector2(420, 220)
 	confirm_panel.set_anchors_preset(Control.PRESET_CENTER)
 	confirm_panel.position = Vector2(-210, -110)
 	confirm_panel.visible = false
-	bg.add_child(confirm_panel)
+	content.add_child(confirm_panel)
 
 	var msg := Label.new()
 	msg.text = "Ein Spielstand existiert bereits.\nWirklich ein neues Spiel starten?\nDer bisherige Fortschritt geht verloren."
