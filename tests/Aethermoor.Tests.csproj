@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Unit-Test-Projekt für die Godot-FREIE Kernlogik. Es referenziert bewusst NICHT das
+    Godot-Client-Projekt, sondern bindet die engine-unabhängigen Quelldateien direkt ein.
+    Dadurch laufen die Tests in CI mit reinem .NET-SDK, ohne Godot-Installation.
+    (Godot-abhängige Typen wie GodotGameLogger/GameBootstrap werden absichtlich NICHT
+    eingebunden — siehe docs/ARCHITECTURE.md §8.)
+  -->
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <LangVersion>12</LangVersion>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <RootNamespace>Aethermoor.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <!-- Godot-freie Kernquellen unter Test -->
+  <ItemGroup>
+    <Compile Include="../client/src/Core/Diagnostics/LogLevel.cs" />
+    <Compile Include="../client/src/Core/Diagnostics/IGameLogger.cs" />
+    <Compile Include="../client/src/Core/Services/IService.cs" />
+    <Compile Include="../client/src/Core/Services/ServiceLocator.cs" />
+    <Compile Include="../client/src/Core/Events/IGameEvent.cs" />
+    <Compile Include="../client/src/Core/Events/EventBus.cs" />
+    <Compile Include="../client/src/Core/Pooling/IPoolable.cs" />
+    <Compile Include="../client/src/Core/Pooling/ObjectPool.cs" />
+  </ItemGroup>
+
+</Project>

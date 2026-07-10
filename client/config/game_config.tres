@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="GameConfig" load_steps=2 format=3]
+
+; Standard-Client-Konfiguration (lokale Entwicklung). Der Godot-Editor kann diese Datei
+; regenerieren; der GameBootstrap fällt bei Ladefehlern auf die Code-Defaults zurück.
+
+[ext_resource type="Script" path="res://src/Core/Configuration/GameConfig.cs" id="1_gameconfig"]
+
+[resource]
+script = ExtResource("1_gameconfig")
+MinimumLogLevel = 2
+TargetFrameRate = 60
+NakamaHost = "127.0.0.1"
+NakamaPort = 7350
+NakamaServerKey = "defaultkey"
+NakamaUseSsl = false

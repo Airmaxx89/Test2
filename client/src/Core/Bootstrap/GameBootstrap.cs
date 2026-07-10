@@ -1,3 +1,4 @@
+using Aethermoor.Core.Configuration;
 using Aethermoor.Core.Diagnostics;
 using Aethermoor.Core.Events;
 using Aethermoor.Core.Services;
@@ -25,13 +26,10 @@ namespace Aethermoor.Core.Bootstrap;
 public sealed partial class GameBootstrap : Node
 {
     private const string LogCategory = "Bootstrap";
+    private const string ConfigPath = "res://config/game_config.tres";
 
-    // In Debug-Builds ausführlicher; in Release wird das Log ruhiger (ARCHITECTURE §7).
-#if DEBUG
-    private const LogLevel MinimumLogLevel = LogLevel.Debug;
-#else
-    private const LogLevel MinimumLogLevel = LogLevel.Info;
-#endif
+    /// <summary>Die geladene Laufzeitkonfiguration dieser Sitzung.</summary>
+    public GameConfig Config { get; private set; } = null!;
 
     /// <summary>Der aktive Dienst-Locator dieser Sitzung.</summary>
     public ServiceLocator Services { get; } = new();
@@ -47,8 +45,18 @@ public sealed partial class GameBootstrap : Node
     /// </summary>
     public override void _Ready()
     {
-        Logger = new GodotGameLogger(MinimumLogLevel);
+        Config = LoadConfigOrDefault(out bool usedFallbackConfig);
+        Logger = new GodotGameLogger(Config.MinimumLogLevel);
+
         Logger.Info(LogCategory, "Kern-Initialisierung gestartet.");
+        if (usedFallbackConfig)
+        {
+            Logger.Warning(
+                LogCategory,
+                $"Konfiguration '{ConfigPath}' nicht ladbar — Standardwerte werden verwendet.");
+        }
+
+        ApplyClientSettings(Config);
 
         Events = new EventBus(Logger);
 
@@ -66,9 +74,31 @@ public sealed partial class GameBootstrap : Node
     /// </summary>
     public override void _ExitTree()
     {
+        // Bei einem Autoload läuft _Ready stets vor _ExitTree, daher sind die
+        // Kernreferenzen hier bereits initialisiert.
         ShutdownRegisteredServices();
-        Events?.Clear();
-        Logger?.Info(LogCategory, "Kern heruntergefahren.");
+        Events.Clear();
+        Logger.Info(LogCategory, "Kern heruntergefahren.");
+    }
+
+    private static GameConfig LoadConfigOrDefault(out bool usedFallback)
+    {
+        if (ResourceLoader.Exists(ConfigPath)
+            && ResourceLoader.Load<GameConfig>(ConfigPath) is GameConfig config)
+        {
+            usedFallback = false;
+            return config;
+        }
+
+        usedFallback = true;
+        return new GameConfig();
+    }
+
+    private void ApplyClientSettings(GameConfig config)
+    {
+        // Akku-/Energieschonung: harte FPS-Obergrenze gemäß Konfiguration (ARCHITECTURE §6).
+        Engine.MaxFps = config.TargetFrameRate;
+        Logger.Debug(LogCategory, $"Ziel-Bildrate auf {config.TargetFrameRate} FPS gesetzt.");
     }
 
     private void InitializeRegisteredServices()

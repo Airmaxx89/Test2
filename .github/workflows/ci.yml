@@ -1,0 +1,32 @@
+name: CI
+
+# Baut und testet die Godot-freie Kernlogik mit reinem .NET-SDK (ohne Godot).
+# Der Godot-Headless-Export (Android-Build) folgt in einem späteren Milestone.
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+permissions:
+  contents: read
+
+jobs:
+  core-tests:
+    name: Kernlogik (dotnet test)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: .NET SDK einrichten
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Abhängigkeiten wiederherstellen
+        run: dotnet restore tests/Aethermoor.Tests.csproj
+
+      - name: Tests ausführen (Release)
+        run: dotnet test tests/Aethermoor.Tests.csproj --configuration Release --no-restore --verbosity normal
