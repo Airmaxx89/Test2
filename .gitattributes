@@ -1,0 +1,18 @@
+# Einheitliche Zeilenenden über Plattformen hinweg
+* text=auto eol=lf
+
+# Godot-Text-Ressourcen als Text behandeln (saubere Diffs/Merges)
+*.tscn   text eol=lf
+*.tres   text eol=lf
+*.godot  text eol=lf
+*.cs     text eol=lf diff=csharp
+
+# Binärformate nicht als Text diffen
+*.png    binary
+*.jpg    binary
+*.webp   binary
+*.ogg    binary
+*.wav    binary
+*.mp3    binary
+*.glb    binary
+*.gltf   binary

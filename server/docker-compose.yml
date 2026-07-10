@@ -1,0 +1,55 @@
+# Lokaler Nakama-Stack für die Entwicklung (NICHT für Produktion).
+# Werte sind Entwicklungs-Defaults; Secrets werden in Staging/Prod extern gesetzt.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: aethermoor-postgres
+    environment:
+      POSTGRES_DB: nakama
+      POSTGRES_USER: nakama
+      POSTGRES_PASSWORD: localdev
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "nakama", "-d", "nakama"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    expose:
+      - "5432"
+    ports:
+      - "127.0.0.1:5432:5432"
+
+  nakama:
+    image: heroiclabs/nakama:3.22.0
+    container_name: aethermoor-nakama
+    depends_on:
+      postgres:
+        condition: service_healthy
+    entrypoint:
+      - "/bin/sh"
+      - "-ecx"
+      - >
+        /nakama/nakama migrate up --database.address nakama:localdev@postgres:5432/nakama &&
+        exec /nakama/nakama
+        --name aethermoor-node
+        --database.address nakama:localdev@postgres:5432/nakama
+        --logger.level DEBUG
+        --session.token_expiry_sec 7200
+        --runtime.path /nakama/data/modules
+    volumes:
+      - ./modules:/nakama/data/modules
+    healthcheck:
+      test: ["CMD", "/nakama/nakama", "healthcheck"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    expose:
+      - "7349"
+      - "7350"
+      - "7351"
+    ports:
+      - "127.0.0.1:7349:7349"
+      - "127.0.0.1:7350:7350"
+      - "127.0.0.1:7351:7351"

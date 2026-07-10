@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <rect width="128" height="128" rx="24" fill="#1a2238"/>
+  <!-- Ätherscherbe: stilisiertes Rautenmotiv des Projekts -->
+  <path d="M64 20 L96 64 L64 108 L32 64 Z" fill="#5db0ff" opacity="0.9"/>
+  <path d="M64 20 L96 64 L64 64 Z" fill="#8fd0ff"/>
+  <path d="M64 64 L96 64 L64 108 Z" fill="#3a86d6"/>
+  <path d="M64 64 L32 64 L64 108 Z" fill="#2a6cb0"/>
+</svg>

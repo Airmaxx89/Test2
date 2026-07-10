@@ -1,0 +1,34 @@
+# ─── Godot 4 ───────────────────────────────────────────────
+# Editor-generierte Import- und Cache-Daten (beim Öffnen neu erzeugt)
+.godot/
+/client/.godot/
+# Exportierte Builds
+*.apk
+*.aab
+export_presets.cfg
+
+# ─── .NET / C# ─────────────────────────────────────────────
+bin/
+obj/
+*.user
+*.suo
+*.userprefs
+# Von Godot beim Import generierte Solution/Projekt-Metadaten
+.mono/
+# (Aethermoor.sln wird von Godot generiert; nicht eingecheckt)
+*.sln
+
+# ─── IDEs ──────────────────────────────────────────────────
+.vs/
+.vscode/
+.idea/
+*.swp
+
+# ─── OS ────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ─── Server (Nakama) ───────────────────────────────────────
+/server/data/
+/server/**/node_modules/
+/server/**/build/

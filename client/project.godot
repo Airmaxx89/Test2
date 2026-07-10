@@ -1,0 +1,50 @@
+; Godot 4 Projektkonfiguration — Aethermoor (Mobile MMORPG, Android)
+;
+; Diese Datei wird vom Godot-Editor beim Öffnen ergänzt (u. a. .godot/-Cache).
+; Bewusst mobil- und C#-fokussiert konfiguriert. Siehe docs/ARCHITECTURE.md.
+
+config_version=5
+
+[application]
+
+config/name="Aethermoor"
+config/description="Stylisiertes Mobile-MMORPG (Android). Godot 4 (C#) + Nakama."
+run/main_scene="res://scenes/Bootstrap.tscn"
+config/features=PackedStringArray("4.4", "C#", "Mobile")
+config/icon="res://icon.svg"
+
+[dotnet]
+
+project/assembly_name="Aethermoor"
+
+[autoload]
+
+; Einziger globaler Einstiegspunkt (siehe docs/ARCHITECTURE.md §2.2).
+; Der Kern (ServiceLocator, EventBus, Logger) wird von hier initialisiert.
+Game="*res://src/Core/Bootstrap/GameBootstrap.cs"
+
+[display]
+
+; Smartphone-Ausrichtung: Landscape für MMORPG-Kampf/UI. Auflösung als Basis,
+; skaliert per stretch. Touch-first (kein Mauszeiger im Fokus).
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/handheld/orientation="landscape"
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+
+[input_devices]
+
+pointing/emulate_touch_from_mouse=true
+
+[physics]
+
+; Mobiler Energie-/CPU-Fokus: feste, moderate Physik-Tickrate.
+common/physics_ticks_per_second=30
+
+[rendering]
+
+; Mobile-Renderer (Vulkan Mobile): akku- und GPU-schonend (ADR-0001, ARCHITECTURE §6).
+renderer/rendering_method="mobile"
+renderer/rendering_method.mobile="mobile"
+textures/vram_compression/import_etc2_astc=true
