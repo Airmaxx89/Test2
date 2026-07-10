@@ -33,6 +33,10 @@ var evade_timer: float = 0.0
 var walk_phase: float = 0.0
 var idle_phase: float = 0.0
 
+# Desktop mouse-look accumulator (right mouse button held). Kept separate from
+# the touch look bridge so both control schemes can coexist.
+var _mouse_look: Vector2 = Vector2.ZERO
+
 signal target_changed(mob: Node3D)
 
 
@@ -70,8 +74,45 @@ func _physics_process(delta: float) -> void:
 	GameManager.world_position = global_position
 
 
+# Desktop controls: WASD/arrows move, right-mouse-drag looks, Space jumps,
+# E interacts, F attacks, 1/2/3 cast abilities. Touch controls (joystick +
+# on-screen buttons) keep working in parallel for Android - both just feed the
+# same InputState / camera, so neither disables the other.
+func _input(event: InputEvent) -> void:
+	if event is InputEventMouseMotion and Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
+		_mouse_look += event.relative
+	elif event is InputEventKey and event.pressed and not event.echo:
+		match event.physical_keycode:
+			KEY_SPACE:
+				InputState.jump_pressed = true
+			KEY_E:
+				InputState.interact_pressed = true
+			KEY_F:
+				InputState.attack_pressed = true
+			KEY_1:
+				InputState.request_ability(0)
+			KEY_2:
+				InputState.request_ability(1)
+			KEY_3:
+				InputState.request_ability(2)
+
+
+func _keyboard_move() -> Vector2:
+	var v := Vector2.ZERO
+	if Input.is_physical_key_pressed(KEY_W) or Input.is_physical_key_pressed(KEY_UP):
+		v.y -= 1.0
+	if Input.is_physical_key_pressed(KEY_S) or Input.is_physical_key_pressed(KEY_DOWN):
+		v.y += 1.0
+	if Input.is_physical_key_pressed(KEY_A) or Input.is_physical_key_pressed(KEY_LEFT):
+		v.x -= 1.0
+	if Input.is_physical_key_pressed(KEY_D) or Input.is_physical_key_pressed(KEY_RIGHT):
+		v.x += 1.0
+	return v
+
+
 func _handle_camera() -> void:
-	var look := InputState.consume_look()
+	var look := InputState.consume_look() + _mouse_look
+	_mouse_look = Vector2.ZERO
 	yaw -= look.x * ROTATE_SPEED
 	pitch -= look.y * ROTATE_SPEED
 	pitch = clamp(pitch, CAMERA_MIN_PITCH, CAMERA_MAX_PITCH)
@@ -88,7 +129,7 @@ func _handle_movement(delta: float) -> void:
 		if InputState.consume_jump():
 			velocity.y = JUMP_VELOCITY
 
-	var move := InputState.move_vector
+	var move := (InputState.move_vector + _keyboard_move()).limit_length(1.0)
 	var input_dir := Vector3(move.x, 0, move.y)
 	var move_dir := input_dir.rotated(Vector3.UP, yaw)
 	var is_moving := move_dir.length() > 0.01

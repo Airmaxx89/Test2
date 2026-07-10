@@ -94,9 +94,16 @@ assets/audio/                Generierte Soundeffekte/Ambient-Loops (siehe oben)
 1. [Godot 4.2 oder neuer](https://godotengine.org/download) installieren.
 2. Projekt öffnen: Godot starten → "Import" → `project.godot` in diesem
    Repo auswählen.
-3. Play-Button drücken. Die Steuerung funktioniert im Editor über die Maus
-   (linke Bildschirmhälfte klicken+ziehen = Bewegung, rechte Hälfte
-   klicken+ziehen = Kamera), da `emulate_touch_from_mouse` aktiviert ist.
+3. Play-Button drücken. Es gibt zwei Steuerungsschemata, die parallel aktiv
+   sind:
+   - **PC (Tastatur + Maus)**: `WASD`/Pfeiltasten = laufen,
+     **rechte Maustaste gedrückt halten + ziehen** = umschauen, `Leertaste`
+     = springen, `E` = interagieren, `F` = angreifen, `1`/`2`/`3` =
+     Fähigkeiten. Empfohlen zum Testen am PC.
+   - **Touch (Android / Editor-Maus)**: virtueller Joystick auf der linken
+     Bildschirmhälfte = laufen, rechte Hälfte ziehen = Kamera, plus die
+     Buttons unten rechts. (`emulate_touch_from_mouse` ist aktiv, daher
+     funktioniert der Joystick im Editor auch mit der Maus.)
 
 **Hinweis:** Die Texturen in `assets/textures/` sind bereits generiert und
 eingecheckt. Falls du sie neu erzeugen willst (z. B. nach Änderungen am

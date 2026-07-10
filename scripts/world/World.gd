@@ -10,7 +10,7 @@ const CHUNK_SIZE := 16
 const WORLD_HEIGHT := 48
 const LOAD_RADIUS := 3
 const IMMEDIATE_RADIUS := 1
-const CHUNKS_PER_FRAME := 2
+const CHUNKS_PER_FRAME := 1
 const WATER_LEVEL := 27
 
 var noise: FastNoiseLite
@@ -18,6 +18,13 @@ var overrides: Dictionary = {} # Vector3i -> Block id
 var chunks: Dictionary = {} # Vector2i -> Chunk
 var atlas_material: StandardMaterial3D
 var water_material: StandardMaterial3D
+
+# Terrain height/biome are deterministic per (x,z) but sampled a huge number
+# of times during chunk meshing (once per face-visibility and per AO corner
+# check). Recomputing the noise each time is the single biggest cause of the
+# main-thread stalls while chunks stream in, so memoize both.
+var _height_cache: Dictionary = {} # Vector2i(x,z) -> int
+var _biome_cache: Dictionary = {}  # int x -> String
 
 var spawner_state: Dictionary = {} # spawner id -> {"alive": Array, "timer": float}
 
@@ -119,7 +126,11 @@ func get_zone(x: int) -> String:
 
 
 func get_biome(x: int) -> String:
-	return ZoneData.get_biome(x)
+	if _biome_cache.has(x):
+		return _biome_cache[x]
+	var b := ZoneData.get_biome(x)
+	_biome_cache[x] = b
+	return b
 
 
 ## Ground level to stand on, raised above the water surface in swampy spots
@@ -137,29 +148,35 @@ func get_spawn_height(x: int, z: int) -> int:
 
 
 func get_height(x: int, z: int) -> int:
-	var biome := ZoneData.get_biome(x)
-	if biome == "meadow" and absi(x) < 26:
-		return 32
-	if biome == "ruins":
-		return 34
-	var n := noise.get_noise_2d(float(x), float(z))
+	var key := Vector2i(x, z)
+	if _height_cache.has(key):
+		return _height_cache[key]
+	var biome := get_biome(x)
 	var h: int
-	match biome:
-		"meadow":
-			h = 32 + int(n * 4.0)
-		"forest":
-			h = 33 + int(n * 5.0)
-		"hills":
-			h = 36 + int(n * 10.0)
-		"swamp":
-			h = 25 + int(n * 2.0)
-		_:
-			h = 32
-	return clampi(h, 10, 45)
+	if biome == "meadow" and absi(x) < 26:
+		h = 32
+	elif biome == "ruins":
+		h = 34
+	else:
+		var n := noise.get_noise_2d(float(x), float(z))
+		match biome:
+			"meadow":
+				h = 32 + int(n * 4.0)
+			"forest":
+				h = 33 + int(n * 5.0)
+			"hills":
+				h = 36 + int(n * 10.0)
+			"swamp":
+				h = 25 + int(n * 2.0)
+			_:
+				h = 32
+		h = clampi(h, 10, 45)
+	_height_cache[key] = h
+	return h
 
 
 func get_surface_block(x: int) -> int:
-	match ZoneData.get_biome(x):
+	match get_biome(x):
 		"meadow", "forest":
 			return VoxelData.Block.GRASS
 		"hills":
@@ -173,7 +190,7 @@ func get_surface_block(x: int) -> int:
 
 
 func get_block(x: int, y: int, z: int) -> int:
-	return get_block_in_column(x, y, z, get_height(x, z), ZoneData.get_biome(x))
+	return get_block_in_column(x, y, z, get_height(x, z), get_biome(x))
 
 
 ## Faster path for chunk meshing: caller already knows the column's height
