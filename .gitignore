@@ -1,0 +1,12 @@
+# Godot 4 auto-generated files
+.godot/
+.import/
+
+# Exported builds
+/build/
+export_presets.cfg
+*.tmp
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db

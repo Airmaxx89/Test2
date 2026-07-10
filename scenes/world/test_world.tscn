@@ -1,0 +1,96 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/test_world.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="2"]
+[ext_resource type="Script" path="res://scripts/camera/iso_camera.gd" id="3"]
+[ext_resource type="PackedScene" path="res://scenes/ui/virtual_joystick.tscn" id="4"]
+
+[sub_resource type="Environment" id="Env"]
+background_mode = 1
+background_color = Color(0.31, 0.45, 0.62, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.55, 0.57, 0.62, 1)
+ambient_light_energy = 1.0
+
+[sub_resource type="BoxMesh" id="Mesh_ground"]
+size = Vector3(40, 0.5, 40)
+
+[sub_resource type="StandardMaterial3D" id="Mat_ground"]
+albedo_color = Color(0.32, 0.45, 0.28, 1)
+
+[sub_resource type="BoxShape3D" id="Shape_ground"]
+size = Vector3(40, 0.5, 40)
+
+[sub_resource type="BoxMesh" id="Mesh_box"]
+size = Vector3(2, 2, 2)
+
+[sub_resource type="StandardMaterial3D" id="Mat_box"]
+albedo_color = Color(0.45, 0.42, 0.4, 1)
+
+[sub_resource type="BoxShape3D" id="Shape_box"]
+size = Vector3(2, 2, 2)
+
+[node name="TestWorld" type="Node3D"]
+script = ExtResource("1")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Env")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.766, 0, 0.6428, 0.4924, 0.6428, -0.5868, -0.4132, 0.766, 0.4924, 0, 20, 0)
+shadow_enabled = true
+
+[node name="Ground" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground"]
+mesh = SubResource("Mesh_ground")
+surface_material_override/0 = SubResource("Mat_ground")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground"]
+shape = SubResource("Shape_ground")
+
+[node name="Obstacles" type="Node3D" parent="."]
+
+[node name="Box1" type="StaticBody3D" parent="Obstacles"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1, 3)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Obstacles/Box1"]
+mesh = SubResource("Mesh_box")
+surface_material_override/0 = SubResource("Mat_box")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Obstacles/Box1"]
+shape = SubResource("Shape_box")
+
+[node name="Box2" type="StaticBody3D" parent="Obstacles"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 1, -5)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Obstacles/Box2"]
+mesh = SubResource("Mesh_box")
+surface_material_override/0 = SubResource("Mat_box")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Obstacles/Box2"]
+shape = SubResource("Shape_box")
+
+[node name="Box3" type="StaticBody3D" parent="Obstacles"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 1, 4)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Obstacles/Box3"]
+mesh = SubResource("Mesh_box")
+surface_material_override/0 = SubResource("Mat_box")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Obstacles/Box3"]
+shape = SubResource("Shape_box")
+
+[node name="Player" parent="." instance=ExtResource("2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+
+[node name="CameraRig" type="Node3D" parent="."]
+script = ExtResource("3")
+
+[node name="Camera3D" type="Camera3D" parent="CameraRig"]
+current = true
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="VirtualJoystick" parent="HUD" instance=ExtResource("4")]
