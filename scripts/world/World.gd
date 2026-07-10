@@ -373,7 +373,7 @@ func _update_spawners(delta: float) -> void:
 
 func _spawn_mob(def: Dictionary, st: Dictionary, mob_script: Script) -> void:
 	var angle := randf() * TAU
-	var r := randf() * def["radius"]
+	var r: float = randf() * def["radius"]
 	var mx := int(def["x"] + cos(angle) * r)
 	var mz := int(def["z"] + sin(angle) * r)
 	var my := get_spawn_height(mx, mz)
