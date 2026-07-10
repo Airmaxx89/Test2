@@ -26,7 +26,7 @@ Ziel: Der Client startet, bootet sauber, zeigt eine Testszene, loggt strukturier
 - ✅ Object-Pool-Basis (`Core/Pooling`) — Godot-frei, allokationssparend
 - ✅ Unit-Test-Suite (ServiceLocator, EventBus, ObjectPool), Godot-frei in CI lauffähig
 - ✅ CI-Workflow (`dotnet test`) auf jeden Push/PR
-- ⬜ CI grün verifizieren (erste echte Ausführung auf GitHub Actions)
+- ✅ CI grün verifiziert (GitHub Actions Run #1: alle Tests bestanden)
 - ⬜ Splash-/Loading-Flow mit asynchronem Szenenwechsel (`SceneRouter`-Dienst)
 
 ## Milestone 2 — Mobile-Steuerung & Kamera  ⬜
