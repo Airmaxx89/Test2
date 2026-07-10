@@ -1,0 +1,19 @@
+# Godot 4+ specific ignores
+.godot/
+/android/
+/export/*.apk
+/export/*.aab
+
+# Imported assets cache
+.import/
+
+# Mono/C# (falls spaeter genutzt)
+.mono/
+data_*/
+mono_crash.*.json
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+*.swp
+*~

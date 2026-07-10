@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
+[ext_resource type="PackedScene" path="res://scenes/ui/main_menu.tscn" id="2_menu"]
+[ext_resource type="PackedScene" path="res://scenes/ui/character_creation.tscn" id="3_cc"]
+
+[node name="Main" type="Node"]
+script = ExtResource("1_main")
+
+[node name="UILayer" type="CanvasLayer" parent="."]
+layer = 2
+
+[node name="MenuLayer" type="CanvasLayer" parent="."]
+layer = 5
+
+[node name="MainMenu" parent="MenuLayer" instance=ExtResource("2_menu")]
+
+[node name="CharacterCreation" parent="MenuLayer" instance=ExtResource("3_cc")]
+visible = false

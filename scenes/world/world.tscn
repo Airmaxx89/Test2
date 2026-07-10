@@ -1,0 +1,196 @@
+[gd_scene load_steps=17 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/world.gd" id="1_world"]
+[ext_resource type="PackedScene" path="res://scenes/world/npc.tscn" id="2_npc"]
+[ext_resource type="PackedScene" path="res://scenes/world/escort_npc.tscn" id="3_esc"]
+[ext_resource type="Script" path="res://scripts/world/enemy_spawner.gd" id="4_spawn"]
+[ext_resource type="Script" path="res://scripts/world/multimesh_scatter.gd" id="5_mm"]
+
+[sub_resource type="PlaneMesh" id="Mesh_ground"]
+size = Vector2(200, 200)
+subdivide_width = 4
+subdivide_depth = 4
+
+[sub_resource type="StandardMaterial3D" id="Mat_ground"]
+albedo_color = Color(0.28, 0.42, 0.24, 1)
+roughness = 0.95
+
+[sub_resource type="BoxShape3D" id="Shape_ground"]
+size = Vector3(200, 1, 200)
+
+[sub_resource type="BoxShape3D" id="Shape_wall"]
+size = Vector3(8, 4, 1)
+
+[sub_resource type="BoxMesh" id="Mesh_wall"]
+size = Vector3(8, 4, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_stone"]
+albedo_color = Color(0.45, 0.44, 0.4, 1)
+roughness = 1.0
+
+[sub_resource type="CylinderMesh" id="Mesh_tree"]
+top_radius = 0.0
+bottom_radius = 1.4
+height = 5.0
+radial_segments = 6
+
+[sub_resource type="StandardMaterial3D" id="Mat_tree"]
+albedo_color = Color(0.16, 0.34, 0.18, 1)
+roughness = 1.0
+
+[sub_resource type="MultiMesh" id="MM_trees"]
+transform_format = 1
+mesh = SubResource("Mesh_tree")
+
+[sub_resource type="Environment" id="Env_fallback"]
+background_mode = 1
+ambient_light_source = 2
+ambient_light_color = Color(0.5, 0.55, 0.6, 1)
+
+[node name="World" type="Node3D"]
+script = ExtResource("1_world")
+player_spawn_path = NodePath("SpawnMarker")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.86, -0.35, 0.37, 0, 0.73, 0.68, -0.5, -0.59, 0.63, 0, 30, 0)
+light_energy = 1.1
+shadow_enabled = true
+directional_shadow_mode = 1
+directional_shadow_max_distance = 80.0
+
+[node name="Ground" type="StaticBody3D" parent="." groups=["world"]]
+collision_layer = 1
+collision_mask = 0
+
+[node name="Mesh" type="MeshInstance3D" parent="Ground"]
+mesh = SubResource("Mesh_ground")
+material_override = SubResource("Mat_ground")
+
+[node name="Collision" type="CollisionShape3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+shape = SubResource("Shape_ground")
+
+[node name="Trees" type="MultiMeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 0)
+material_override = SubResource("Mat_tree")
+multimesh = SubResource("MM_trees")
+script = ExtResource("5_mm")
+instance_count = 100
+area_size = Vector2(180, 180)
+clear_radius = 16.0
+
+[node name="SpawnMarker" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 8)
+
+[node name="Aldric" parent="." instance=ExtResource("2_npc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, 4)
+npc_id = &"aldric"
+display_name = "Foerster Aldric"
+body_color = Color(0.3, 0.55, 0.35, 1)
+
+[node name="Mira" parent="." instance=ExtResource("3_esc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, 4)
+npc_id = &"mira"
+display_name = "Haendlerin Mira"
+escort_quest_id = &"q_escort"
+body_color = Color(0.7, 0.5, 0.3, 1)
+destination_path = NodePath("../EscortDestination")
+
+[node name="EscortDestination" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -58)
+
+[node name="Ruins" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -80)
+
+[node name="WallN" type="StaticBody3D" parent="Ruins" groups=["world"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, -8)
+collision_layer = 1
+
+[node name="Col" type="CollisionShape3D" parent="Ruins/WallN"]
+shape = SubResource("Shape_wall")
+
+[node name="Mesh" type="MeshInstance3D" parent="Ruins/WallN"]
+mesh = SubResource("Mesh_wall")
+material_override = SubResource("Mat_stone")
+
+[node name="WallS" type="StaticBody3D" parent="Ruins" groups=["world"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 2, 8)
+collision_layer = 1
+
+[node name="Col" type="CollisionShape3D" parent="Ruins/WallS"]
+shape = SubResource("Shape_wall")
+
+[node name="Mesh" type="MeshInstance3D" parent="Ruins/WallS"]
+mesh = SubResource("Mesh_wall")
+material_override = SubResource("Mat_stone")
+
+[node name="WallE" type="StaticBody3D" parent="Ruins" groups=["world"]]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 10, 2, 0)
+collision_layer = 1
+
+[node name="Col" type="CollisionShape3D" parent="Ruins/WallE"]
+shape = SubResource("Shape_wall")
+
+[node name="Mesh" type="MeshInstance3D" parent="Ruins/WallE"]
+mesh = SubResource("Mesh_wall")
+material_override = SubResource("Mat_stone")
+
+[node name="Spawners" type="Node3D" parent="."]
+
+[node name="WolfCamp1" type="Node3D" parent="Spawners"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26, 0, 22)
+script = ExtResource("4_spawn")
+enemy_id = &"wolf"
+max_alive = 4
+spawn_radius = 10.0
+
+[node name="WolfCamp2" type="Node3D" parent="Spawners"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0, 26)
+script = ExtResource("4_spawn")
+enemy_id = &"wolf"
+max_alive = 4
+spawn_radius = 10.0
+
+[node name="WolfCamp3" type="Node3D" parent="Spawners"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34, 0, -12)
+script = ExtResource("4_spawn")
+enemy_id = &"wolf"
+max_alive = 3
+
+[node name="BanditCamp1" type="Node3D" parent="Spawners"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, -55)
+script = ExtResource("4_spawn")
+enemy_id = &"bandit"
+max_alive = 4
+spawn_radius = 12.0
+
+[node name="BanditCamp2" type="Node3D" parent="Spawners"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16, 0, -66)
+script = ExtResource("4_spawn")
+enemy_id = &"bandit"
+max_alive = 3
+
+[node name="ArcherPost" type="Node3D" parent="Spawners"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -72)
+script = ExtResource("4_spawn")
+enemy_id = &"bandit_archer"
+max_alive = 3
+spawn_radius = 14.0
+
+[node name="WraithCrypt" type="Node3D" parent="Spawners"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, -86)
+script = ExtResource("4_spawn")
+enemy_id = &"ruin_wraith"
+max_alive = 3
+respawn_delay = 12.0
+
+[node name="BossLair" type="Node3D" parent="Spawners"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -96)
+script = ExtResource("4_spawn")
+enemy_id = &"bandit_overlord"
+max_alive = 1
+respawn_delay = 30.0
+spawn_radius = 3.0
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Env_fallback")
