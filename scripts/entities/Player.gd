@@ -174,6 +174,15 @@ func _perform_ability(index: int) -> void:
 	var ab: Dictionary = abilities[index]
 	if not GameManager.is_ability_ready(ab["id"]):
 		return
+
+	if ab["range"] != "self":
+		if target_mob == null:
+			return
+		var d: float = global_position.distance_to(target_mob.global_position)
+		var max_range: float = MELEE_RANGE if ab["range"].begins_with("melee") else RANGED_MAX_RANGE
+		if d > max_range:
+			return
+
 	if not GameManager.spend_resource(ab["cost"]):
 		return
 	GameManager.trigger_cooldown(ab["id"], ab["cooldown"])
@@ -182,12 +191,6 @@ func _perform_ability(index: int) -> void:
 		_apply_self_ability(ab["id"])
 		return
 
-	if target_mob == null:
-		return
-	var d: float = global_position.distance_to(target_mob.global_position)
-	var max_range: float = MELEE_RANGE if ab["range"].begins_with("melee") else RANGED_MAX_RANGE
-	if d > max_range:
-		return
 	var dmg := int(GameManager.get_attack_damage() * float(ab["damage_mult"]))
 	target_mob.take_damage(dmg)
 	if ab["id"] == "frostschock":

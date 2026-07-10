@@ -17,7 +17,7 @@ const Z_RANGE := Vector2i(-64, 64)
 const NPCS := [
 	{"id": "aeltester_berthold", "name": "Ältester Berthold", "zone": "eichenfeld", "x": 0, "z": 10},
 	{"id": "baeuerin_hilde", "name": "Bäuerin Hilde", "zone": "eichenfeld", "x": -14, "z": -8},
-	{"id": "schmied_rutger", "name": "Schmied Rutger", "zone": "eichenfeld", "x": 14, "z": -10},
+	{"id": "schmied_rutger", "name": "Schmied Rutger", "zone": "eichenfeld", "x": 14, "z": -10, "vendor": true, "shop_items": ["health_potion", "mana_potion"]},
 	{"id": "jaegerin_elsbeth", "name": "Jägerin Elsbeth", "zone": "wolfsschlucht", "x": 58, "z": 0},
 	{"id": "vogt_konrad", "name": "Vogt Konrad", "zone": "steinbrueck", "x": 156, "z": 0},
 	{"id": "minenvorsteher_alrik", "name": "Minenvorsteher Alrik", "zone": "steinbrueck", "x": 196, "z": 24},
@@ -51,6 +51,12 @@ const SPAWNERS := [
 	{"id": "s_swampthing_grimmwacht", "mob": "sumpfschrat", "x": 432, "z": 0, "radius": 20, "max_alive": 3, "respawn": 28.0},
 	{"id": "s_boss_old_guardian", "mob": "alter_waechter", "x": 462, "z": 0, "radius": 8, "max_alive": 1, "respawn": 1800.0},
 ]
+
+static func get_npc(id: String) -> Dictionary:
+	for def in NPCS:
+		if def["id"] == id:
+			return def
+	return {}
 
 static func get_zone(x: int) -> String:
 	for id in ZONES.keys():

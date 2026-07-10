@@ -36,6 +36,7 @@ func _ready() -> void:
 	noise.fractal_octaves = 3
 	_build_atlas_material()
 	_build_sun()
+	AudioManager.play_ambient("forest")
 	_generate_overrides()
 	_spawn_npcs()
 	_init_spawners()
@@ -88,10 +89,10 @@ func _spawn_player() -> void:
 	var p := preload("res://scripts/entities/Player.gd").new()
 	add_child(p)
 	player = p
-	if GameManager.character_created and GameManager.world_position.length() > 0.1:
+	if GameManager.character_created and GameManager.has_saved_position:
 		p.global_position = GameManager.world_position
 	else:
-		p.global_position = Vector3(0, get_height(0, 0) + 2, 0)
+		p.global_position = Vector3(0, get_spawn_height(0, 0), 0)
 	player_spawned.emit(p)
 
 
@@ -122,9 +123,17 @@ func get_biome(x: int) -> String:
 
 
 ## Ground level to stand on, raised above the water surface in swampy spots
-## so NPCs/mobs don't spawn waist-deep (or fully submerged) in water.
+## so NPCs/mobs don't spawn waist-deep (or fully submerged) in water, and
+## above any override structure (tree trunk, house, fortress wall) that the
+## pure noise-based get_height() has no knowledge of.
 func get_spawn_height(x: int, z: int) -> int:
-	return max(get_height(x, z), WATER_LEVEL) + 1
+	var h := get_height(x, z)
+	var top := h
+	for y in range(h + 1, h + 13):
+		var block: int = overrides.get(Vector3i(x, y, z), VoxelData.Block.AIR)
+		if block != VoxelData.Block.AIR and block != VoxelData.Block.LEAVES:
+			top = y
+	return max(top, WATER_LEVEL) + 1
 
 
 func get_height(x: int, z: int) -> int:
@@ -382,6 +391,6 @@ func _spawn_mob(def: Dictionary, st: Dictionary, mob_script: Script) -> void:
 	var mob_data: Dictionary = MobData.get_mob(def["mob"])
 	var level_range: Vector2i = mob_data["level_range"]
 	var mob_level: int = level_range.x if level_range.x == level_range.y else randi_range(level_range.x, level_range.y)
-	mob.setup(def["mob"], mob_level, self)
+	mob.setup(def["mob"], mob_level, self, Vector3(def["x"], my, def["z"]))
 	mob.global_position = Vector3(mx, my, mz)
 	st["alive"].append(mob)

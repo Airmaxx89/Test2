@@ -132,6 +132,7 @@ func complete_quest(quest_id: String) -> bool:
 		GameManager.add_item(item_id, q["item_rewards"][item_id])
 	active_quests.erase(quest_id)
 	completed_quests.append(quest_id)
+	AudioManager.play_sfx("quest_complete")
 	quest_completed.emit(quest_id)
 	return true
 

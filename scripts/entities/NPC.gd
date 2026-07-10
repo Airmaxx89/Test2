@@ -87,4 +87,7 @@ func _update_marker() -> void:
 
 
 func interact() -> void:
-	DialogueState.trigger(npc_id, display_name)
+	if ZoneData.get_npc(npc_id).get("vendor", false):
+		DialogueState.trigger_shop(npc_id, display_name)
+	else:
+		DialogueState.trigger(npc_id, display_name)

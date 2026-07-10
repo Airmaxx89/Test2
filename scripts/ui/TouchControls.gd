@@ -38,6 +38,7 @@ func _ready() -> void:
 	interact_btn.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
 	interact_btn.position = Vector2(-320, -240)
 	interact_btn.pressed.connect(func(): InputState.interact_pressed = true)
+	interact_btn.pressed.connect(func(): AudioManager.play_sfx("button_click"))
 	root.add_child(interact_btn)
 	buttons.append(interact_btn)
 
@@ -45,6 +46,7 @@ func _ready() -> void:
 	jump_btn.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
 	jump_btn.position = Vector2(-310, -110)
 	jump_btn.pressed.connect(func(): InputState.jump_pressed = true)
+	jump_btn.pressed.connect(func(): AudioManager.play_sfx("button_click"))
 	root.add_child(jump_btn)
 	buttons.append(jump_btn)
 
@@ -55,6 +57,7 @@ func _ready() -> void:
 	attack_btn.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
 	attack_btn.position = Vector2(-170, -170)
 	attack_btn.pressed.connect(func(): InputState.attack_pressed = true)
+	attack_btn.pressed.connect(func(): AudioManager.play_sfx("button_click"))
 	root.add_child(attack_btn)
 	buttons.append(attack_btn)
 
@@ -63,6 +66,7 @@ func _ready() -> void:
 		ab_btn.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
 		ab_btn.position = Vector2(-170 - (i + 1) * 84, -290)
 		ab_btn.pressed.connect(_make_ability_callback(i))
+		ab_btn.pressed.connect(func(): AudioManager.play_sfx("button_click"))
 		root.add_child(ab_btn)
 		buttons.append(ab_btn)
 		ability_buttons.append(ab_btn)
@@ -88,7 +92,6 @@ func _make_action_button(text: String, size: Vector2) -> Button:
 	b.custom_minimum_size = size
 	b.size = size
 	b.clip_text = true
-	b.autowrap_mode = TextServer.AUTOWRAP_WORD
 	return b
 
 

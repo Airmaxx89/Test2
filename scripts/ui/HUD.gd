@@ -18,6 +18,7 @@ var toast_tween: Tween
 
 var quest_log_ui: Node
 var inventory_ui: Node
+var character_stats_ui: Node
 
 
 func _ready() -> void:
@@ -134,13 +135,40 @@ func _ready() -> void:
 	inv_btn.position = Vector2(-110, 20)
 	root.add_child(inv_btn)
 
+	var stats_btn := Button.new()
+	stats_btn.text = "Charakter"
+	stats_btn.custom_minimum_size = Vector2(110, 48)
+	stats_btn.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	stats_btn.position = Vector2(-330, 20)
+	root.add_child(stats_btn)
+
+	var pause_btn := Button.new()
+	pause_btn.text = "II"
+	pause_btn.custom_minimum_size = Vector2(56, 48)
+	pause_btn.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	pause_btn.position = Vector2(330, 20)
+	pause_btn.pressed.connect(func():
+		var pm := get_tree().get_first_node_in_group("pause_menu")
+		if pm:
+			pm.toggle()
+	)
+	pause_btn.pressed.connect(func(): AudioManager.play_sfx("button_click"))
+	root.add_child(pause_btn)
+
 	quest_log_ui = preload("res://scripts/ui/QuestLogUI.gd").new()
 	add_child(quest_log_ui)
 	quest_btn.pressed.connect(func(): quest_log_ui.toggle())
+	quest_btn.pressed.connect(func(): AudioManager.play_sfx("button_click"))
 
 	inventory_ui = preload("res://scripts/ui/InventoryUI.gd").new()
 	add_child(inventory_ui)
 	inv_btn.pressed.connect(func(): inventory_ui.toggle())
+	inv_btn.pressed.connect(func(): AudioManager.play_sfx("button_click"))
+
+	character_stats_ui = preload("res://scripts/ui/CharacterStatsUI.gd").new()
+	add_child(character_stats_ui)
+	stats_btn.pressed.connect(func(): character_stats_ui.toggle())
+	stats_btn.pressed.connect(func(): AudioManager.play_sfx("button_click"))
 
 	GameManager.health_changed.connect(_on_health_changed)
 	GameManager.resource_changed.connect(_on_resource_changed)

@@ -171,6 +171,12 @@ func _face_visible(world: World, current: int, nx: int, ny: int, nz: int) -> boo
 		return true
 	if current == VoxelData.Block.WATER and neighbor == VoxelData.Block.WATER:
 		return false
+	# Leaves are non-opaque for lighting purposes, but two adjacent leaf
+	# blocks still hide the face between them - without this special case
+	# every LEAVES-to-LEAVES face inside a tree canopy gets meshed even
+	# though it's never visible from outside the canopy.
+	if current == VoxelData.Block.LEAVES and neighbor == VoxelData.Block.LEAVES:
+		return false
 	return not VoxelData.is_opaque(neighbor)
 
 

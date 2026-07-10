@@ -60,6 +60,7 @@ func load_game() -> bool:
 	GameManager.equipped_weapon = data.get("equipped_weapon", "")
 	var pos: Array = data.get("world_position", [0, 40, 0])
 	GameManager.world_position = Vector3(pos[0], pos[1], pos[2])
+	GameManager.has_saved_position = true
 	GameManager.character_created = true
 	QuestManager.deserialize(data.get("quests", {}))
 	return true

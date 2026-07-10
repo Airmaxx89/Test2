@@ -19,6 +19,7 @@ QuestManager="*res://autoload/QuestManager.gd"
 SaveManager="*res://autoload/SaveManager.gd"
 InputState="*res://autoload/InputState.gd"
 DialogueState="*res://autoload/DialogueState.gd"
+AudioManager="*res://autoload/AudioManager.gd"
 
 [display]
 

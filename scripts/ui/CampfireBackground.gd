@@ -30,6 +30,7 @@ func _ready() -> void:
 	_build_campfire()
 	_build_particles()
 	_build_figures()
+	AudioManager.play_ambient("campfire")
 
 
 func _build_environment() -> void:

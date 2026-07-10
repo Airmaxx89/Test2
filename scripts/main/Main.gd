@@ -8,6 +8,8 @@ var world: Node = null
 var hud: Node = null
 var touch_controls: Node = null
 var dialogue_ui: Node = null
+var shop_ui: Node = null
+var pause_menu_ui: Node = null
 var start_menu_ui: Node = null
 var char_creation_ui: Node = null
 var save_timer: Timer
@@ -64,6 +66,16 @@ func _start_world() -> void:
 	dialogue_ui = preload("res://scripts/ui/DialogueUI.gd").new()
 	add_child(dialogue_ui)
 
+	shop_ui = preload("res://scripts/ui/ShopUI.gd").new()
+	add_child(shop_ui)
+
+	pause_menu_ui = preload("res://scripts/ui/PauseMenuUI.gd").new()
+	pause_menu_ui.add_to_group("pause_menu")
+	add_child(pause_menu_ui)
+	pause_menu_ui.quit_to_menu_confirmed.connect(_on_quit_to_menu_confirmed)
+
+	if GameManager.died.is_connected(_on_player_died):
+		GameManager.died.disconnect(_on_player_died)
 	GameManager.died.connect(_on_player_died)
 
 	save_timer = Timer.new()
@@ -77,10 +89,41 @@ func _on_player_died() -> void:
 	GameManager.health = GameManager.max_health * 0.5
 	GameManager.health_changed.emit(GameManager.health, GameManager.max_health)
 	if world and world.player:
-		world.player.global_position = Vector3(0, world.get_height(0, 0) + 2, 0)
+		world.player.global_position = Vector3(0, world.get_spawn_height(0, 0), 0)
 		world.player.velocity = Vector3.ZERO
 	if hud:
 		hud.show_message("Du wurdest besiegt und nach Eichenfeld zurückgebracht.", GameTheme.HP_COLOR)
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if world == null:
+		return
+	if event.is_action_pressed("ui_cancel"):
+		_toggle_pause()
+		get_viewport().set_input_as_handled()
+
+
+func _toggle_pause() -> void:
+	if pause_menu_ui:
+		pause_menu_ui.toggle()
+
+
+func _on_quit_to_menu_confirmed() -> void:
+	if save_timer:
+		save_timer.queue_free()
+		save_timer = null
+	if GameManager.died.is_connected(_on_player_died):
+		GameManager.died.disconnect(_on_player_died)
+	for n in [world, hud, touch_controls, dialogue_ui, shop_ui, pause_menu_ui]:
+		if n:
+			n.queue_free()
+	world = null
+	hud = null
+	touch_controls = null
+	dialogue_ui = null
+	shop_ui = null
+	pause_menu_ui = null
+	_show_start_menu()
 
 
 func _notification(what: int) -> void:
@@ -89,3 +132,6 @@ func _notification(what: int) -> void:
 	if what == NOTIFICATION_APPLICATION_PAUSED or what == NOTIFICATION_WM_CLOSE_REQUEST:
 		if GameManager.character_created:
 			SaveManager.save_game()
+	elif what == NOTIFICATION_WM_GO_BACK_REQUEST:
+		if world != null:
+			_toggle_pause()

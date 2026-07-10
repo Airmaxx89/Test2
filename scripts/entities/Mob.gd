@@ -10,7 +10,8 @@ const ATTACK_INTERVAL := 1.5
 
 var mob_id: String
 var level: int
-var world: Node
+var world: World
+var home_position: Vector3
 
 var max_health: float
 var health: float
@@ -25,6 +26,7 @@ var state: String = "idle"
 var attack_cooldown: float = 0.0
 var label: Label3D
 var model: Node3D
+var collision_shape: CollisionShape3D
 var walk_phase: float = 0.0
 var idle_phase: float = 0.0
 
@@ -34,13 +36,12 @@ var slow_factor: float = 1.0
 const TARGETED_COLOR := Color(1.0, 0.85, 0.3)
 const NORMAL_LABEL_COLOR := Color(1.0, 1.0, 1.0)
 
-signal died()
 
-
-func setup(id: String, lvl: int, w: Node) -> void:
+func setup(id: String, lvl: int, w: World, home: Vector3) -> void:
 	mob_id = id
 	level = lvl
 	world = w
+	home_position = home
 	var data: Dictionary = MobData.get_mob(id)
 	max_health = MobData.scaled_health(id, lvl)
 	health = max_health
@@ -61,10 +62,10 @@ func setup(id: String, lvl: int, w: Node) -> void:
 	var capsule := CapsuleShape3D.new()
 	capsule.radius = 0.55 if is_boss else 0.4
 	capsule.height = 2.6 if is_boss else 1.8
-	var shape := CollisionShape3D.new()
-	shape.shape = capsule
-	shape.position = Vector3(0, capsule.height / 2.0, 0)
-	add_child(shape)
+	collision_shape = CollisionShape3D.new()
+	collision_shape.shape = capsule
+	collision_shape.position = Vector3(0, capsule.height / 2.0, 0)
+	add_child(collision_shape)
 
 	label = Label3D.new()
 	label.text = "%s (Lvl %d)" % [data["name"], lvl]
@@ -84,7 +85,7 @@ func _physics_process(delta: float) -> void:
 		if slow_timer <= 0.0:
 			slow_factor = 1.0
 
-	var player := get_tree().get_first_node_in_group("player")
+	var player: Node3D = world.player if world else null
 	if player == null:
 		return
 	var d: float = global_position.distance_to(player.global_position)
@@ -97,6 +98,8 @@ func _physics_process(delta: float) -> void:
 		"chase":
 			if d > LEASH_RANGE:
 				state = "idle"
+				global_position = home_position
+				velocity = Vector3.ZERO
 			elif d < MELEE_RANGE:
 				state = "attack"
 			else:
@@ -158,6 +161,7 @@ func take_damage(amount: float) -> void:
 	if state == "dead":
 		return
 	health -= amount
+	AudioManager.play_sfx("hit")
 	if state == "idle":
 		state = "chase"
 	if health <= 0.0:
@@ -167,6 +171,9 @@ func take_damage(amount: float) -> void:
 func _die() -> void:
 	state = "dead"
 	set_physics_process(false)
+	remove_from_group("mob")
+	if collision_shape:
+		collision_shape.set_deferred("disabled", true)
 	QuestManager.notify_kill(mob_id)
 	GameManager.add_xp(xp_value)
 	for item_id in loot.keys():
@@ -176,7 +183,6 @@ func _die() -> void:
 				GameManager.add_gold(randi_range(1, 5) + level)
 			else:
 				GameManager.add_item(item_id, 1)
-	died.emit()
 	var tween := create_tween()
 	tween.tween_property(self, "scale", Vector3(0.05, 0.05, 0.05), 0.6)
 	tween.tween_callback(queue_free)

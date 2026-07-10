@@ -30,7 +30,7 @@ const QUESTS := {
 			{"type": "collect", "target": "boar_tusk", "count": 4},
 		],
 		"xp_reward": 110, "coin_reward": 15, "item_rewards": {},
-		"requires": "q01_woelfe_vor_dem_dorf", "next": "q03_erz_fuer_den_schmied",
+		"requires": "q01_woelfe_vor_dem_dorf", "next": "q03_kobold_unruhe",
 	},
 	"q03_kobold_unruhe": {
 		"title": "Kobold-Unruhe",

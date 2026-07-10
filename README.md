@@ -25,6 +25,9 @@ eigenständig erstellt:
 - **Grafik**: Sämtliche Texturen und Icons werden von einem eigenen
   Python-Skript (`tools/generate_textures.py`) prozedural erzeugt - keine
   Blizzard-Assets, keine fremden Texturen, keine Minecraft-Dateien.
+- **Audio**: Sämtliche Soundeffekte und Ambient-Loops werden von einem
+  eigenen Python-Skript (`tools/generate_sounds.py`) aus einfachen
+  Tönen/gefiltertem Rauschen synthetisiert - keine fremden Audiodateien.
 - **Code**: Komplett neu geschriebenes GDScript für Godot 4, keine
   dekompilierten oder kopierten Spieldateien.
 
@@ -44,6 +47,14 @@ Leveling und Quests), aber eigenständiges Werk.
   Klasse mit 3 Fähigkeiten (freigeschaltet auf Stufe 1/5/10)
 - **Quests**: 22 zusammenhängende Quests, die Spieler von Level 1 bis 20
   führen (Kill-, Sammel- und Erkundungsquests)
+- **Handel**: Schmied Rutger in Eichenfeld kauft/verkauft Grundgegenstände -
+  Gold aus Monsterbeute und Questbelohnungen hat damit einen Zweck.
+- **Pause-/Einstellungsmenü**: über die Android-Zurück-Taste oder den
+  Pause-Button im HUD erreichbar - manuelles Speichern, Musik-/Effekt-
+  Lautstärke, Rückkehr zum Hauptmenü (mit Bestätigung).
+- **Charakter-Stats-Bildschirm**: zeigt Volk/Klasse, Level, Attribute
+  (Stärke/Beweglichkeit/Intellekt/Ausdauer) und die daraus abgeleiteten
+  Kampfwerte.
 - **Speichern**: Vollständig lokal (JSON-Datei im App-Datenverzeichnis),
   keine Internetverbindung nötig oder angefordert
 
@@ -56,21 +67,26 @@ default_env.tres          Standard-3D-Umgebung (Himmel, Nebel, Licht)
 icon.svg                  App-/Editor-Icon (eigenes Design)
 
 autoload/                 Singletons: GameManager, QuestManager, SaveManager,
-                           InputState (Touch-UI-Bridge), DialogueState
+                           InputState (Touch-UI-Bridge), DialogueState,
+                           AudioManager
 data/                     Reine Datendefinitionen (Rassen, Klassen, Items,
                            Monster, Quests, Zonen, Voxel-Blocktypen)
 scripts/world/            World.gd (Terraingenerierung, Chunk-Streaming,
                            Spawner), Chunk.gd (Mesh-Erzeugung)
 scripts/entities/         Player.gd, Mob.gd, NPC.gd, CharacterModel.gd
-                           (blockiges Figuren-Modell aus Primitiven)
+                           (rundes Figuren-Modell aus Primitiven)
 scripts/ui/                HUD, Touch-Steuerung, Charaktererstellung,
-                           Inventar, Questlog, Dialog, Startmenü
+                           Inventar, Shop, Questlog, Dialog, Startmenü,
+                           Pause-/Einstellungsmenü, Charakter-Stats
 scripts/main/Main.gd       Spielfluss: Startmenü → (Charaktererstellung) →
                            Welt + UI
 
 tools/generate_textures.py  Erzeugt assets/textures/atlas.png (Blocktexturen)
                              und assets/textures/icons/*.png (Item-Icons)
+tools/generate_sounds.py    Erzeugt assets/audio/sfx/*.wav und
+                             assets/audio/ambient/*.wav (siehe Audio-Features)
 assets/textures/            Generierte Pixel-Art-Texturen (siehe oben)
+assets/audio/                Generierte Soundeffekte/Ambient-Loops (siehe oben)
 ```
 
 ## Öffnen & Testen (Godot Editor)
@@ -101,7 +117,7 @@ Skript): `python3 tools/generate_textures.py` (benötigt `pillow`,
 4. Die App fordert **keine Internetberechtigung** an - sie ist bewusst rein
    offline.
 
-## Grafik-Features
+## Grafik- & Audio-Features
 
 - **Eigenes UI-Theme** (`scripts/ui/GameTheme.gd`): dunkles Pergament/Holz-
   Design mit abgerundeten Panels statt Godot-Standard-Controls.
@@ -125,6 +141,10 @@ Skript): `python3 tools/generate_textures.py` (benötigt `pillow`,
 - **Kantenglättung** (MSAA 4x + FXAA, `project.godot`) für saubere Silhouetten
   an den neuen runden Formen; höher aufgelöste Terrain-Texturen (32px statt
   16px pro Kachel, `tools/generate_textures.py`).
+- **Soundeffekte** (`autoload/AudioManager.gd`): Treffer, Levelaufstieg,
+  Gegenstand aufgehoben, Quest abgeschlossen, Button-Klicks - plus
+  Ambient-Loops (Wald in der Spielwelt, Lagerfeuerknistern im Hauptmenü).
+  Eigene Lautstärkeregler für Effekte und Musik/Ambiente im Pause-Menü.
 
 Falls die Performance auf älteren/schwächeren Android-Geräten leidet, sind
 die ersten Stellschrauben: `anti_aliasing/quality/screen_space_aa` und danach
@@ -144,14 +164,14 @@ prüfen:
 - Landschaft/Gebäude sind einfache, funktionale Voxel-Strukturen (Fachwerk-
   Dörfer, Festungsmauern) - Details wie Fenster, Möbel, mehr Gebäudevielfalt
   lassen sich leicht per `World.gd`-Overrides ergänzen.
-- Kein Crafting, keine Ausrüstungsslots über die Waffe hinaus, kein Handel
-  mit NPCs (Gold wird gesammelt, aber es gibt noch keinen Händler-NPC) -
+- Kein Crafting, keine Ausrüstungsslots über die Waffe hinaus (nur ein
+  Händler-NPC mit fester Verkaufsliste, kein volles Wirtschaftssystem) -
   bewusst für den MVP-Umfang weggelassen.
 
 ## Roadmap (nächste Schritte)
 
 1. **Playtesting & Balancing** im echten Editor/Gerät.
-2. **Mehr Inhalt in Eichenmark**: weitere Nebenquests, Händler-NPCs,
+2. **Mehr Inhalt in Eichenmark**: weitere Nebenquests, weitere Händler-NPCs,
    Ausrüstungs-Upgrades, mehr Gebäudevielfalt.
 3. **Neue Gebiete** (wie ursprünglich gewünscht: Nachbarländer): das
    `ZoneData.gd`-Schema ist bewusst so gebaut, dass sich neue Zonen, NPCs,

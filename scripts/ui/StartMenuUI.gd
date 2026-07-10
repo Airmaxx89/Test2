@@ -60,6 +60,7 @@ func _ready() -> void:
 	new_btn.custom_minimum_size = Vector2(272, 64)
 	new_btn.position = Vector2(24, 24)
 	new_btn.pressed.connect(_on_new_game_pressed)
+	new_btn.pressed.connect(func(): AudioManager.play_sfx("button_click"))
 	panel.add_child(new_btn)
 
 	continue_btn = Button.new()
@@ -67,6 +68,7 @@ func _ready() -> void:
 	continue_btn.custom_minimum_size = Vector2(272, 64)
 	continue_btn.position = Vector2(24, 104)
 	continue_btn.pressed.connect(func(): continue_pressed.emit())
+	continue_btn.pressed.connect(func(): AudioManager.play_sfx("button_click"))
 	panel.add_child(continue_btn)
 
 	var footer := Label.new()

@@ -28,6 +28,7 @@ var equipped_weapon: String = ""
 
 var world_position: Vector3 = Vector3(0, 40, 0)
 var character_created: bool = false
+var has_saved_position: bool = false
 
 var ability_cooldowns: Dictionary = {} # ability_id -> seconds remaining
 
@@ -84,6 +85,7 @@ func add_xp(amount: int) -> void:
 		_recalc_stats()
 		health = max_health
 		resource = max_resource
+		AudioManager.play_sfx("level_up")
 		level_changed.emit(level)
 		health_changed.emit(health, max_health)
 		resource_changed.emit(resource, max_resource)
@@ -94,6 +96,7 @@ func add_xp(amount: int) -> void:
 
 func take_damage(amount: float) -> void:
 	health = max(0.0, health - amount)
+	AudioManager.play_sfx("hit")
 	health_changed.emit(health, max_health)
 	if health <= 0.0:
 		died.emit()
@@ -151,6 +154,7 @@ func trigger_cooldown(ability_id: String, seconds: float) -> void:
 
 func add_item(id: String, count: int = 1) -> void:
 	inventory[id] = inventory.get(id, 0) + count
+	AudioManager.play_sfx("item_pickup")
 	inventory_changed.emit()
 
 
@@ -173,10 +177,46 @@ func add_gold(amount: int) -> void:
 	gold_changed.emit(gold)
 
 
+func spend_gold(amount: int) -> bool:
+	if gold < amount:
+		return false
+	gold -= amount
+	gold_changed.emit(gold)
+	return true
+
+
+func sell_item(id: String, count: int = 1) -> bool:
+	var item: Dictionary = ItemData.get_item(id)
+	if item.is_empty() or int(item.get("sell_value", 0)) <= 0:
+		return false
+	if not remove_item(id, count):
+		return false
+	add_gold(int(item["sell_value"]) * count)
+	return true
+
+
 func get_attack_damage() -> int:
 	var item: Dictionary = ItemData.get_item(equipped_weapon)
 	var base_dmg: int = item.get("damage", 5)
-	return base_dmg + int(level * 1.5) + get_stat("strength")
+	var primary_stat := "strength"
+	match class_id:
+		"jaeger":
+			primary_stat = "agility"
+		"magier":
+			primary_stat = "intellect"
+	return base_dmg + int(level * 1.5) + get_stat(primary_stat)
+
+
+func equip_weapon(item_id: String) -> bool:
+	var item: Dictionary = ItemData.get_item(item_id)
+	if item.get("type", "") != "weapon":
+		return false
+	if item.get("class_restriction", "") != class_id:
+		return false
+	if item_count(item_id) <= 0:
+		return false
+	equipped_weapon = item_id
+	return true
 
 
 func get_class_abilities() -> Array:
@@ -201,4 +241,5 @@ func reset_for_new_game() -> void:
 	equipped_weapon = ""
 	world_position = Vector3(0, 40, 0)
 	character_created = false
+	has_saved_position = false
 	ability_cooldowns = {}

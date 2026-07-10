@@ -31,6 +31,7 @@ func _ready() -> void:
 	close_btn.set_anchors_preset(Control.PRESET_TOP_RIGHT)
 	close_btn.position = Vector2(-140, 14)
 	close_btn.pressed.connect(func(): toggle())
+	close_btn.pressed.connect(func(): AudioManager.play_sfx("button_click"))
 	panel.add_child(close_btn)
 
 	var weapon_card := PanelContainer.new()
@@ -120,9 +121,25 @@ func _refresh() -> void:
 			use_btn.custom_minimum_size = Vector2(110, 40)
 			use_btn.pressed.connect(_make_use_cb(item_id))
 			hbox.add_child(use_btn)
+		elif item.get("type", "") == "weapon" and item_id != GameManager.equipped_weapon:
+			var equip_btn := Button.new()
+			equip_btn.text = "Ausrüsten"
+			equip_btn.custom_minimum_size = Vector2(110, 40)
+			equip_btn.disabled = item.get("class_restriction", "") != GameManager.class_id
+			equip_btn.pressed.connect(_make_equip_cb(item_id))
+			hbox.add_child(equip_btn)
 
 		content.add_child(row)
 
 
 func _make_use_cb(item_id: String) -> Callable:
-	return func(): GameManager.use_consumable(item_id)
+	return func():
+		GameManager.use_consumable(item_id)
+		AudioManager.play_sfx("button_click")
+
+
+func _make_equip_cb(item_id: String) -> Callable:
+	return func():
+		GameManager.equip_weapon(item_id)
+		AudioManager.play_sfx("button_click")
+		_refresh()
