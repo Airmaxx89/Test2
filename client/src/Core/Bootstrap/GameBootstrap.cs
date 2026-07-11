@@ -1,6 +1,7 @@
 using Aethermoor.Core.Configuration;
 using Aethermoor.Core.Diagnostics;
 using Aethermoor.Core.Events;
+using Aethermoor.Core.Scenes;
 using Aethermoor.Core.Services;
 using Godot;
 
@@ -40,6 +41,9 @@ public sealed partial class GameBootstrap : Node
     /// <summary>Der zentrale Logger dieser Sitzung.</summary>
     public IGameLogger Logger { get; private set; } = null!;
 
+    /// <summary>Zentraler Dienst für asynchrone Szenenwechsel.</summary>
+    public SceneRouter Scenes { get; private set; } = null!;
+
     /// <summary>
     /// Godot-Lebenszyklus: wird beim Laden des Autoloads aufgerufen. Baut den Kern auf.
     /// </summary>
@@ -60,12 +64,24 @@ public sealed partial class GameBootstrap : Node
 
         Events = new EventBus(Logger);
 
-        // Domänen-Dienste werden in kommenden Milestones hier registriert und initialisiert,
-        // z. B.:  Services.Register<INetworkService>(new NakamaNetworkService(...));
+        // Kern-Dienste registrieren. Weitere Domänen-Dienste (Netzwerk, Audio, Welt) folgen
+        // in kommenden Milestones — an genau dieser Stelle und in kontrollierter Reihenfolge.
+        Scenes = new SceneRouter(GetTree(), Events, Logger);
+        Services.Register<SceneRouter>(Scenes);
+
         InitializeRegisteredServices();
 
         Logger.Info(LogCategory, "Kern-Initialisierung abgeschlossen.");
         Events.Publish(new GameInitializedEvent(Time.GetTicksMsec()));
+    }
+
+    /// <summary>
+    /// Godot-Lebenszyklus: Frame-Update. Treibt den asynchronen Szenenlader voran; bei
+    /// Inaktivität ein günstiger No-Op.
+    /// </summary>
+    public override void _Process(double delta)
+    {
+        Scenes.Tick();
     }
 
     /// <summary>

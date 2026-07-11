@@ -1,13 +1,17 @@
-[gd_scene format=3]
+[gd_scene load_steps=2 format=3]
 
-; Platzhalter-Startszene. Der Kern wird vom Autoload "Game" (GameBootstrap) aufgebaut;
-; diese Szene wird in Milestone 1 durch den echten Splash-/Ladefluss ersetzt.
+; Startszene: Marken-Splash + Ladebildschirm. Der SplashController stößt nach kurzer
+; Anzeige den asynchronen Wechsel zur Zielszene an und spiegelt den Fortschritt in den
+; Balken (unique name "%LoadingBar").
+
+[ext_resource type="Script" path="res://src/UI/Splash/SplashController.cs" id="1_splash"]
 
 [node name="Bootstrap" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+script = ExtResource("1_splash")
 
 [node name="Background" type="ColorRect" parent="."]
 layout_mode = 1
@@ -16,17 +20,30 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 color = Color(0.101961, 0.133333, 0.219608, 1)
 
-[node name="Title" type="Label" parent="."]
+[node name="Center" type="CenterContainer" parent="."]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -200.0
-offset_top = -20.0
-offset_right = 200.0
-offset_bottom = 20.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="VBox" type="VBoxContainer" parent="Center"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="Title" type="Label" parent="Center/VBox"]
+layout_mode = 2
 text = "AETHERMOOR"
 horizontal_alignment = 1
-vertical_alignment = 1
+
+[node name="LoadingBar" type="ProgressBar" parent="Center/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(320, 22)
+layout_mode = 2
+max_value = 100.0
+value = 0.0
+show_percentage = false
+
+[node name="Status" type="Label" parent="Center/VBox"]
+layout_mode = 2
+text = "Welt wird geladen …"
+horizontal_alignment = 1

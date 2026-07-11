@@ -1,0 +1,32 @@
+[gd_scene format=3]
+
+; Platzhalter-Hauptmenü — Ziel des Splash-/Ladeflusses. Wird in einem späteren Milestone
+; durch das echte, Touch-first gestaltete Hauptmenü ersetzt.
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.078431, 0.098039, 0.164706, 1)
+
+[node name="Title" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -20.0
+offset_right = 200.0
+offset_bottom = 20.0
+text = "Hauptmenü (Platzhalter)"
+horizontal_alignment = 1
+vertical_alignment = 1

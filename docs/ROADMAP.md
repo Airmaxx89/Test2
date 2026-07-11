@@ -27,7 +27,10 @@ Ziel: Der Client startet, bootet sauber, zeigt eine Testszene, loggt strukturier
 - ✅ Unit-Test-Suite (ServiceLocator, EventBus, ObjectPool), Godot-frei in CI lauffähig
 - ✅ CI-Workflow (`dotnet test`) auf jeden Push/PR
 - ✅ CI grün verifiziert (GitHub Actions Run #1: alle Tests bestanden)
-- ⬜ Splash-/Loading-Flow mit asynchronem Szenenwechsel (`SceneRouter`-Dienst)
+- ✅ `SceneRouter`-Dienst: asynchroner, nicht-blockierender Szenenwechsel (threaded Load)
+- ✅ Splash-/Loading-Flow (Bootstrap → MainMenu) mit Fortschrittsbalken über EventBus
+- ✅ `SceneLoadTracker` (Godot-frei) mit Unit-Tests — Phasen & monotoner Fortschritt
+- ⬜ Splash-/Ladefluss lokal im Godot-Editor verifizieren (Szenenwechsel sichtbar)
 
 ## Milestone 2 — Mobile-Steuerung & Kamera  ⬜
 Ziel: Sich anfühlen wie ein Mobile-Spiel, noch ohne Netzwerk.

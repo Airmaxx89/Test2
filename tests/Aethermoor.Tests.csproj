@@ -37,6 +37,9 @@
     <Compile Include="../client/src/Core/Events/EventBus.cs" />
     <Compile Include="../client/src/Core/Pooling/IPoolable.cs" />
     <Compile Include="../client/src/Core/Pooling/ObjectPool.cs" />
+    <Compile Include="../client/src/Core/Scenes/SceneLoadStatus.cs" />
+    <Compile Include="../client/src/Core/Scenes/SceneLoadPhase.cs" />
+    <Compile Include="../client/src/Core/Scenes/SceneLoadTracker.cs" />
   </ItemGroup>
 
 </Project>
