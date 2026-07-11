@@ -1,9 +1,10 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://scripts/world/test_world.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="2"]
 [ext_resource type="Script" path="res://scripts/camera/iso_camera.gd" id="3"]
 [ext_resource type="PackedScene" path="res://scenes/ui/virtual_joystick.tscn" id="4"]
+[ext_resource type="PackedScene" path="res://scenes/ui/player_hud.tscn" id="5"]
 
 [sub_resource type="Environment" id="Env"]
 background_mode = 1
@@ -94,3 +95,5 @@ current = true
 [node name="HUD" type="CanvasLayer" parent="."]
 
 [node name="VirtualJoystick" parent="HUD" instance=ExtResource("4")]
+
+[node name="PlayerHUD" parent="HUD" instance=ExtResource("5")]

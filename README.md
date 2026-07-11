@@ -30,8 +30,16 @@ scripts/
 
 ## Status — vertical slice
 - [x] **Step 1:** movement in a test world, isometric camera, touch controls
-- [ ] Step 2: basic stats (HP, damage, level)
+- [x] **Step 2:** basic stats (HP, damage, level), resource-based + HUD
 - [ ] Step 3: simple combat (one attack, one enemy type)
 - [ ] Step 4: save / load
+
+### Stats system
+- `scripts/stats/character_stats.gd` — `CharacterStats` resource (max_health,
+  attack_damage, level). Player values live in `resources/player_stats.tres`.
+- `scripts/components/health.gd` — reusable `Health` node (current HP, signals
+  `health_changed` / `died`). Used by player now, enemies later.
+- HUD (`scenes/ui/player_hud.tscn`) shows level + HP bar. The two debug buttons
+  ("Hit -10" / "Heal +10") are temporary, just to test this step.
 
 > Graphics are placeholder primitives (capsule/boxes). Art style comes later.
