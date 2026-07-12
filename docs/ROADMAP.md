@@ -76,8 +76,12 @@ Ziel: Serverautoritatives Grundgerüst.
 ## Milestone 4 — Gameplay-Vertikale (eine Klasse, eine Zone)  ⬜
 Ziel: Eine durchgängige, echte Spielschleife als Referenzimplementierung.
 
-- ⬜ Datengetriebenes Fähigkeitssystem (`AbilityResource`)
-- ⬜ Wächter-Klasse (1 Spec) mit 5 Fähigkeiten
+- ✅ Datengetriebenes Fähigkeitssystem: engine-freier `AbilityCaster` (Cooldowns,
+  Ressourcen, Reichweite; Zeit injiziert → deterministisch getestet) +
+  `AbilityResource` (.tres-Datenschicht, neue Fähigkeit = neue Datei);
+  erste Wächter-Fähigkeiten als Daten (`assets/abilities/`)
+- ⬜ Wächter-Klasse (1 Spec) mit 5 Fähigkeiten + Touch-Zauberleiste (Buttons mit
+  Cooldown-Anzeige aus `GetCooldownRemaining`)
 - ⬜ Server-validierte Kampfauflösung (Cooldown/Reichweite/Schaden)
 - ⬜ Zone „Morgenau" (Streaming, Spawns, 1 Quest)
 - ⬜ Gegner-KI: Aggro/Patrouille/Heimkehr

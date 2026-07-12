@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="AbilityResource" load_steps=2 format=3]
+
+; Wächter (Bollwerk): Zweiter Wind — Selbstheilung ohne Ziel (Range 0 = keine Zielprüfung).
+
+[ext_resource type="Script" path="res://src/Gameplay/Abilities/AbilityResource.cs" id="1_ability"]
+
+[resource]
+script = ExtResource("1_ability")
+Id = "waechter.zweiter_wind"
+DisplayName = "Zweiter Wind"
+CooldownSeconds = 30.0
+ResourceCost = 40.0
+Range = 0.0
+EffectType = 1
+Magnitude = 120.0

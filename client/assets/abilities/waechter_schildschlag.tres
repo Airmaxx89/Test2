@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="AbilityResource" load_steps=2 format=3]
+
+; Wächter (Bollwerk): Schildschlag — kurzer Nahkampf-Stoß, Brot-und-Butter-Angriff.
+; Werte sind Client-Vorschau; verbindliches Balancing lebt serverseitig (ADR-0002).
+
+[ext_resource type="Script" path="res://src/Gameplay/Abilities/AbilityResource.cs" id="1_ability"]
+
+[resource]
+script = ExtResource("1_ability")
+Id = "waechter.schildschlag"
+DisplayName = "Schildschlag"
+CooldownSeconds = 6.0
+ResourceCost = 20.0
+Range = 80.0
+EffectType = 0
+Magnitude = 35.0
