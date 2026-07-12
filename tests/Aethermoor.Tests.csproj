@@ -42,6 +42,9 @@
     <Compile Include="../client/src/Core/Scenes/SceneLoadTracker.cs" />
     <Compile Include="../client/src/Gameplay/Input/JoystickOutput.cs" />
     <Compile Include="../client/src/Gameplay/Input/VirtualJoystickProcessor.cs" />
+    <Compile Include="../client/src/Gameplay/Input/AutoRunController.cs" />
+    <Compile Include="../client/src/Gameplay/Targeting/TargetCandidate.cs" />
+    <Compile Include="../client/src/Gameplay/Targeting/SmartTargetSelector.cs" />
     <Compile Include="../client/src/World/Camera/CameraFollowSolver.cs" />
   </ItemGroup>
 

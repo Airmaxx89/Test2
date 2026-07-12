@@ -42,8 +42,12 @@ Ziel: Sich anfühlen wie ein Mobile-Spiel, noch ohne Netzwerk.
 - ✅ Geglättete Folgekamera (`FollowCamera`) mit Godot-freiem, bildratenunabhängigem
   `CameraFollowSolver` — Unit-getestet
 - ✅ Interaktive `Playground`-Szene (Joystick → Charakter → Kamera) als Splash-Ziel
-- ⬜ Steuerung lokal im Godot-Editor verifizieren (Joystick bewegt Charakter, Kamera folgt)
-- ⬜ Auto-Laufen & Smart-Targeting-Grundlage
+- ✅ Auto-Laufen (`AutoRunController`): einrasten, lenken, Gegensteuern bricht ab — getestet;
+  UI-Button in der `Playground`-Szene
+- ✅ Smart-Targeting-Grundlage (`SmartTargetSelector`): Reichweite, Blickkegel, Nähe/
+  Ausrichtungs-Gewichtung — getestet (Godot-Anbindung folgt mit dem Gegner-Milestone)
+- ⬜ Steuerung lokal im Godot-Editor verifizieren (Joystick + Auto-Lauf bewegen Charakter,
+  Kamera folgt)
 
 ## Milestone 3 — Netzwerk-Fundament (Nakama)  ⬜
 Ziel: Serverautoritatives Grundgerüst.

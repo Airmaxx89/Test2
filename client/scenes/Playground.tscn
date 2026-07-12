@@ -44,3 +44,16 @@ TargetPath = NodePath("../Player")
 [node name="UI" type="CanvasLayer" parent="."]
 
 [node name="VirtualJoystick" parent="UI" instance=ExtResource("3_joystick")]
+
+[node name="AutoRunButton" type="Button" parent="UI"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -168.0
+offset_top = -104.0
+offset_right = -32.0
+offset_bottom = -32.0
+text = "Auto-Lauf"
+
+[connection signal="pressed" from="UI/AutoRunButton" to="Player" method="ToggleAutoRun"]
