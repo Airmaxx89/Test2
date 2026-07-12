@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 ; Interaktiver Steuerungs-Prototyp (Milestone 2): virtueller Joystick bewegt einen
 ; Platzhalter-Charakter, dem eine geglättete Folgekamera nachzieht. Ersetzt vorübergehend das
@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://src/Gameplay/Character/LocalCharacterController.cs" id="1_char"]
 [ext_resource type="Script" path="res://src/World/Camera/FollowCamera.cs" id="2_cam"]
 [ext_resource type="PackedScene" path="res://scenes/VirtualJoystick.tscn" id="3_joystick"]
+[ext_resource type="Script" path="res://src/UI/Controls/AbilityBar.cs" id="4_abilitybar"]
 
 [sub_resource type="RectangleShape2D" id="shape_player"]
 size = Vector2(48, 48)
@@ -51,9 +52,22 @@ anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = -168.0
-offset_top = -104.0
+offset_top = -368.0
 offset_right = -32.0
-offset_bottom = -32.0
+offset_bottom = -296.0
 text = "Auto-Lauf"
+
+[node name="AbilityBar" type="Control" parent="UI"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -400.0
+offset_top = -280.0
+mouse_filter = 2
+script = ExtResource("4_abilitybar")
+AbilityPaths = PackedStringArray("res://assets/abilities/waechter_schildschlag.tres", "res://assets/abilities/waechter_zweiter_wind.tres")
+MaxResource = 100.0
+ResourceRegenPerSecond = 5.0
 
 [connection signal="pressed" from="UI/AutoRunButton" to="Player" method="ToggleAutoRun"]

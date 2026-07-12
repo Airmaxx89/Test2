@@ -80,8 +80,12 @@ Ziel: Eine durchgängige, echte Spielschleife als Referenzimplementierung.
   Ressourcen, Reichweite; Zeit injiziert → deterministisch getestet) +
   `AbilityResource` (.tres-Datenschicht, neue Fähigkeit = neue Datei);
   erste Wächter-Fähigkeiten als Daten (`assets/abilities/`)
-- ⬜ Wächter-Klasse (1 Spec) mit 5 Fähigkeiten + Touch-Zauberleiste (Buttons mit
-  Cooldown-Anzeige aus `GetCooldownRemaining`)
+- ✅ Touch-Zauberleiste: `AbilityBar` (Daumen-Bogen unten rechts, Daten über
+  Ressourcenpfade) + `AbilityButton` (radiale Cooldown-Anzeige, Ausgrauen);
+  Zustands-Ableitung engine-frei (`AbilityStatusResolver`, getestet); Wirk-Ereignisse
+  über EventBus (`AbilityCastPredicted/Rejected`)
+- ⬜ Wächter-Klasse (1 Spec) auf 5 Fähigkeiten ausbauen; Zauberleiste lokal im Editor
+  verifizieren (Cooldown-Anzeige, Mana-Ausgrauen)
 - ⬜ Server-validierte Kampfauflösung (Cooldown/Reichweite/Schaden)
 - ⬜ Zone „Morgenau" (Streaming, Spawns, 1 Quest)
 - ⬜ Gegner-KI: Aggro/Patrouille/Heimkehr

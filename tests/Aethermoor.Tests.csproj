@@ -44,6 +44,7 @@
     <Compile Include="../client/src/Gameplay/Abilities/AbilityDefinition.cs" />
     <Compile Include="../client/src/Gameplay/Abilities/CastFailureReason.cs" />
     <Compile Include="../client/src/Gameplay/Abilities/AbilityCaster.cs" />
+    <Compile Include="../client/src/Gameplay/Abilities/AbilityStatus.cs" />
     <Compile Include="../client/src/Gameplay/Input/JoystickOutput.cs" />
     <Compile Include="../client/src/Gameplay/Input/VirtualJoystickProcessor.cs" />
     <Compile Include="../client/src/Gameplay/Input/AutoRunController.cs" />
