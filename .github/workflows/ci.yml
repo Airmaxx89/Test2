@@ -30,3 +30,20 @@ jobs:
 
       - name: Tests ausführen (Release)
         run: dotnet test tests/Aethermoor.Tests.csproj --configuration Release --no-restore --verbosity normal
+
+  client-build:
+    name: Client kompilieren (dotnet build)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: .NET SDK einrichten
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      # Godot.NET.Sdk ist ein NuGet-SDK: der Client kompiliert ohne Godot-Editor.
+      # Verifiziert u. a. den Nakama-Adapter und alle Godot-gebundenen Skripte.
+      - name: Client bauen (Release)
+        run: dotnet build client/Aethermoor.csproj --configuration Release

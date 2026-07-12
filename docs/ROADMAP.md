@@ -58,9 +58,14 @@ Ziel: Serverautoritatives Grundgerüst.
 - ✅ `ReconnectBackoff` — exponentiell + Jitter (Thundering-Herd-Schutz) — Unit-getestet
 - ✅ Domänenmodelle (`ServerEndpoint`, `AuthCredentials`, `SessionInfo`) + Netz-Events
 - ✅ `OfflineNetworkService` (SDK-freier Stand-in) im Bootstrap registriert — Unit-getestet
-- ⬜ `NakamaNetworkService`: konkreter Adapter (Auth + Session + Socket), gegen Docker-Stack
-  verifiziert — ersetzt den Offline-Stand-in
-- ⬜ Bewegungsreplikation: Prediction + Reconciliation (2 Clients synchron)
+- ✅ `NakamaNetworkService`: Adapter (Geräte-Auth + Session + Socket + Auto-Reconnect);
+  Kompilierung CI-verifiziert (neuer Job „Client kompilieren")
+- ✅ Replikations-Mathematik (Godot-frei, Unit-getestet): `SnapshotBuffer`
+  (Interpolation, keine Extrapolation) + `PredictionReconciler` (Prediction/Reconciliation)
+- ⬜ Adapter zur Laufzeit gegen den lokalen Docker-Stack verifizieren, dann im Bootstrap
+  den Offline-Stand-in ersetzen (Anleitung: `client/src/Networking/README.md`)
+- ⬜ Autoritativer Match-Handler in `server/modules/` + Godot-Anbindung der Replikation
+  (2 Clients synchron)
 
 ## Milestone 4 — Gameplay-Vertikale (eine Klasse, eine Zone)  ⬜
 Ziel: Eine durchgängige, echte Spielschleife als Referenzimplementierung.

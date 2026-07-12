@@ -20,9 +20,33 @@ SDK-freies Fundament vorhanden und CI-getestet:
 - `OfflineNetworkService` — SDK-freier Stand-in, im `GameBootstrap` registriert; macht die
   Abstraktion sofort nutzbar und dient als Vorlage.
 
-## Nächste Iteration
+## Aktueller Stand (Milestone 3, Teil 2)
 
-- `Nakama/NakamaNetworkService` — konkreter Adapter (NuGet `NakamaClient`), der den Offline-
-  Stand-in ersetzt. Wird gegen den lokalen Docker-Stack (`server/`) verifiziert. Nakama-Typen
-  erscheinen ausschließlich in diesem Ordner.
-- `Replication/` — Snapshot-Interpolation, Client-Prediction, Server-Reconciliation.
+- `Nakama/NakamaNetworkService` — konkreter Adapter (NuGet `NakamaClient`): Geräte-Auth,
+  Session, Realtime-Socket, automatischer Wiederaufbau über `ReconnectBackoff`. Nakama-Typen
+  erscheinen ausschließlich in diesem Ordner (ADR-0002). Kompilierung ist CI-verifiziert
+  (Job „Client kompilieren").
+- `Replication/SnapshotBuffer` — Snapshot-Interpolation „in der Vergangenheit" für entfernte
+  Entitäten: sortiert verspätete Pakete ein, klemmt statt zu extrapolieren. CI-getestet.
+- `Replication/PredictionReconciler` — Client-Prediction + Server-Reconciliation für die
+  eigene Figur: Eingaben sofort anwenden, puffern, nach Server-Ack ab autoritativer Position
+  neu abspielen. Bewegungsformel injizierbar (Client/Server teilen dieselbe). CI-getestet.
+
+## Umschalten auf den Nakama-Adapter
+
+Der `GameBootstrap` registriert derzeit den `OfflineNetworkService`. Sobald der lokale
+Docker-Stack läuft (`server/README.md`), im Bootstrap ersetzen durch:
+
+```csharp
+var endpoint = new ServerEndpoint(
+    Config.NakamaUseSsl ? "https" : "http",
+    Config.NakamaHost, Config.NakamaPort, Config.NakamaServerKey);
+Services.Register<INetworkService>(new NakamaNetworkService(endpoint, Events, Logger));
+```
+
+## Offene Punkte (Milestone-3-Abnahme)
+
+- Adapter zur Laufzeit gegen den lokalen Docker-Stack verifizieren (Login sichtbar in der
+  Nakama-Console) — erfordert lokale Godot-/.NET-Umgebung.
+- Godot-Anbindung der Replikation (Senden der Eingaben, Empfangen der Snapshots) auf Basis
+  eines autoritativen Match-Handlers in `server/modules/`.
