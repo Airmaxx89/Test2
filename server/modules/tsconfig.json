@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    // Die Nakama-JS-Runtime (goja) erwartet eine einzelne ES5-Datei ohne Modulsystem.
+    // Daher: kein import/export in den Quellen; tsc bündelt über "outFile".
+    "target": "ES5",
+    "outFile": "./build/index.js",
+    "types": [],
+    "strict": true,
+    "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": false,
+    "removeComments": false
+  },
+  "files": [
+    "types/nkruntime.d.ts",
+    "src/movement_match.ts",
+    "src/main.ts"
+  ]
+}

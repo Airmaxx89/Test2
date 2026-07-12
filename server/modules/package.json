@@ -1,0 +1,13 @@
+{
+  "name": "aethermoor-server-modules",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Autoritative Nakama-Runtime-Module für Aethermoor (Match-Handler, RPCs).",
+  "scripts": {
+    "build": "tsc",
+    "check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0"
+  }
+}

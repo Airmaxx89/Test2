@@ -62,10 +62,14 @@ Ziel: Serverautoritatives Grundgerüst.
   Kompilierung CI-verifiziert (neuer Job „Client kompilieren")
 - ✅ Replikations-Mathematik (Godot-frei, Unit-getestet): `SnapshotBuffer`
   (Interpolation, keine Extrapolation) + `PredictionReconciler` (Prediction/Reconciliation)
-- ⬜ Adapter zur Laufzeit gegen den lokalen Docker-Stack verifizieren, dann im Bootstrap
-  den Offline-Stand-in ersetzen (Anleitung: `client/src/Networking/README.md`)
-- ⬜ Autoritativer Match-Handler in `server/modules/` + Godot-Anbindung der Replikation
-  (2 Clients synchron)
+- ✅ Autoritativer Match-Handler (`server/modules/`, TypeScript-Runtime): Eingaben mit
+  Sequenznummern, serverseitige Integration mit der Client-Formel, Tick-Snapshots mit Ack;
+  Anti-Cheat-Grundlagen (Richtungs-/Zeit-Klemmung, Replay-Schutz, Rate-Limit).
+  Lokal gebaut (`tsc`, strikt) + eigener CI-Job
+- ⬜ Adapter + Match-Handler zur Laufzeit gegen den lokalen Docker-Stack verifizieren,
+  dann im Bootstrap den Offline-Stand-in ersetzen (`client/src/Networking/README.md`)
+- ⬜ Godot-Anbindung der Replikation: Eingaben senden, Snapshots empfangen —
+  2 Clients synchron (nutzt `PredictionReconciler`/`SnapshotBuffer`)
 
 ## Milestone 4 — Gameplay-Vertikale (eine Klasse, eine Zone)  ⬜
 Ziel: Eine durchgängige, echte Spielschleife als Referenzimplementierung.

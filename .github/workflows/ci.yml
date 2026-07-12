@@ -47,3 +47,24 @@ jobs:
       # Verifiziert u. a. den Nakama-Adapter und alle Godot-gebundenen Skripte.
       - name: Client bauen (Release)
         run: dotnet build client/Aethermoor.csproj --configuration Release
+
+  server-modules:
+    name: Server-Module bauen (tsc)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server/modules
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node einrichten
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Abhängigkeiten installieren
+        run: npm install
+
+      - name: Modul bauen (strikte Typen)
+        run: npm run build
