@@ -1,0 +1,46 @@
+[gd_scene load_steps=6 format=3]
+
+; Interaktiver Steuerungs-Prototyp (Milestone 2): virtueller Joystick bewegt einen
+; Platzhalter-Charakter, dem eine geglättete Folgekamera nachzieht. Ersetzt vorübergehend das
+; Menü als Ziel des Splash-Flusses, damit die Steuerung sofort erlebbar ist.
+
+[ext_resource type="Script" path="res://src/Gameplay/Character/LocalCharacterController.cs" id="1_char"]
+[ext_resource type="Script" path="res://src/World/Camera/FollowCamera.cs" id="2_cam"]
+[ext_resource type="PackedScene" path="res://scenes/VirtualJoystick.tscn" id="3_joystick"]
+
+[sub_resource type="RectangleShape2D" id="shape_player"]
+size = Vector2(48, 48)
+
+[node name="Playground" type="Node2D"]
+
+[node name="Ground" type="ColorRect" parent="."]
+offset_left = -2000.0
+offset_top = -2000.0
+offset_right = 2000.0
+offset_bottom = 2000.0
+color = Color(0.129412, 0.156863, 0.211765, 1)
+
+[node name="Player" type="CharacterBody2D" parent="."]
+position = Vector2(640, 360)
+script = ExtResource("1_char")
+MoveSpeed = 320.0
+InputSourcePath = NodePath("../UI/VirtualJoystick")
+
+[node name="Visual" type="ColorRect" parent="Player"]
+offset_left = -24.0
+offset_top = -24.0
+offset_right = 24.0
+offset_bottom = 24.0
+color = Color(0.360784, 0.690196, 1, 1)
+
+[node name="Collision" type="CollisionShape2D" parent="Player"]
+shape = SubResource("shape_player")
+
+[node name="Camera" type="Camera2D" parent="."]
+script = ExtResource("2_cam")
+Smoothing = 8.0
+TargetPath = NodePath("../Player")
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="VirtualJoystick" parent="UI" instance=ExtResource("3_joystick")]

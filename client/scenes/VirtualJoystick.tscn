@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=3]
+
+; Wiederverwendbarer virtueller Joystick. Belegt standardmäßig die linke Bildschirmhälfte als
+; Aktivierungsfläche (dynamischer Daumen-Joystick); die rechte Hälfte bleibt für Aktions-
+; Buttons frei. Skinning erfolgt später über die exportierten Farben bzw. eine Textur.
+
+[ext_resource type="Script" path="res://src/UI/Controls/VirtualJoystick.cs" id="1_joystick"]
+
+[node name="VirtualJoystick" type="Control"]
+anchor_right = 0.5
+anchor_bottom = 1.0
+mouse_filter = 0
+script = ExtResource("1_joystick")

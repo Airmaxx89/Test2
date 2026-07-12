@@ -32,12 +32,18 @@ Ziel: Der Client startet, bootet sauber, zeigt eine Testszene, loggt strukturier
 - ✅ `SceneLoadTracker` (Godot-frei) mit Unit-Tests — Phasen & monotoner Fortschritt
 - ⬜ Splash-/Ladefluss lokal im Godot-Editor verifizieren (Szenenwechsel sichtbar)
 
-## Milestone 2 — Mobile-Steuerung & Kamera  ⬜
+## Milestone 2 — Mobile-Steuerung & Kamera  🔄
 Ziel: Sich anfühlen wie ein Mobile-Spiel, noch ohne Netzwerk.
 
-- ⬜ Virtueller Joystick (Multi-Touch, konfigurierbar)
-- ⬜ Charakter-Controller (lokal) + Kamera (Daumen-Ergonomie)
-- ⬜ Auto-Laufen, Smart-Targeting-Grundlage
+- ✅ Virtueller Joystick (dynamisch, Multi-Touch, konfigurierbar) — `VirtualJoystick`
+- ✅ Godot-freie Joystick-Mathematik (`VirtualJoystickProcessor`) mit Totzone,
+  radialer Klemmung & Remap — Unit-getestet
+- ✅ Lokaler Charakter-Controller (`LocalCharacterController`) gegen `IMovementInputSource`
+- ✅ Geglättete Folgekamera (`FollowCamera`) mit Godot-freiem, bildratenunabhängigem
+  `CameraFollowSolver` — Unit-getestet
+- ✅ Interaktive `Playground`-Szene (Joystick → Charakter → Kamera) als Splash-Ziel
+- ⬜ Steuerung lokal im Godot-Editor verifizieren (Joystick bewegt Charakter, Kamera folgt)
+- ⬜ Auto-Laufen & Smart-Targeting-Grundlage
 
 ## Milestone 3 — Netzwerk-Fundament (Nakama)  ⬜
 Ziel: Serverautoritatives Grundgerüst.

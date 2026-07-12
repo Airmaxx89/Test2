@@ -22,7 +22,7 @@ public sealed partial class SplashController : Control
     private const string ProgressBarUniqueName = "%LoadingBar";
 
     /// <summary>Zielszene, die nach dem Splash geladen wird.</summary>
-    [Export] public string NextScenePath { get; set; } = "res://scenes/MainMenu.tscn";
+    [Export] public string NextScenePath { get; set; } = "res://scenes/Playground.tscn";
 
     /// <summary>Mindestanzeigedauer des Splash in Sekunden (Markenmoment, kein Flackern).</summary>
     [Export(PropertyHint.Range, "0,5,0.1")] public float MinimumSplashSeconds { get; set; } = 1.0f;

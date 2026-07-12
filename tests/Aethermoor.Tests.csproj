@@ -40,6 +40,9 @@
     <Compile Include="../client/src/Core/Scenes/SceneLoadStatus.cs" />
     <Compile Include="../client/src/Core/Scenes/SceneLoadPhase.cs" />
     <Compile Include="../client/src/Core/Scenes/SceneLoadTracker.cs" />
+    <Compile Include="../client/src/Gameplay/Input/JoystickOutput.cs" />
+    <Compile Include="../client/src/Gameplay/Input/VirtualJoystickProcessor.cs" />
+    <Compile Include="../client/src/World/Camera/CameraFollowSolver.cs" />
   </ItemGroup>
 
 </Project>
