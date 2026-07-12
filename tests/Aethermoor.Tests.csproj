@@ -53,6 +53,7 @@
     <Compile Include="../client/src/Networking/NetworkEvents.cs" />
     <Compile Include="../client/src/Networking/INetworkService.cs" />
     <Compile Include="../client/src/Networking/OfflineNetworkService.cs" />
+    <Compile Include="../client/src/Networking/Protocol/MovementProtocol.cs" />
     <Compile Include="../client/src/Networking/Replication/PositionSnapshot.cs" />
     <Compile Include="../client/src/Networking/Replication/SnapshotBuffer.cs" />
     <Compile Include="../client/src/Networking/Replication/PredictionReconciler.cs" />

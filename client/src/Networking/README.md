@@ -41,8 +41,14 @@ Docker-Stack läuft (`server/README.md`), im Bootstrap ersetzen durch:
 var endpoint = new ServerEndpoint(
     Config.NakamaUseSsl ? "https" : "http",
     Config.NakamaHost, Config.NakamaPort, Config.NakamaServerKey);
-Services.Register<INetworkService>(new NakamaNetworkService(endpoint, Events, Logger));
+var nakama = new NakamaNetworkService(endpoint, Events, Logger);
+Services.Register<INetworkService>(nakama);
+Services.Register<IMatchClient>(nakama); // Match-Fähigkeit derselben Instanz
 ```
+
+Danach die Splash-Zielszene auf `res://scenes/NetPlayground.tscn` stellen (Export
+`NextScenePath` am `SplashController` oder direkt die Szene starten). Zwei parallel
+gestartete Clients sehen sich gegenseitig als interpolierte Avatare.
 
 ## Offene Punkte (Milestone-3-Abnahme)
 

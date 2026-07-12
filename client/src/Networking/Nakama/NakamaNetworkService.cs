@@ -1,10 +1,15 @@
 using System;
+using System.Collections.Concurrent;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Aethermoor.Core.Diagnostics;
 using Aethermoor.Core.Events;
 using Aethermoor.Networking.Connection;
 using Aethermoor.Networking.Model;
+using Aethermoor.Networking.Protocol;
 using Nakama;
 
 namespace Aethermoor.Networking.NakamaAdapter;
@@ -25,9 +30,13 @@ namespace Aethermoor.Networking.NakamaAdapter;
 /// Milestone-3-Abnahme (siehe Networking/README.md).
 /// </para>
 /// </remarks>
-public sealed class NakamaNetworkService : INetworkService
+public sealed class NakamaNetworkService : INetworkService, IMatchClient
 {
     private const string LogCategory = "Net";
+    private const string RpcFindOrCreateMovementMatch = "find_or_create_movement_match";
+
+    /// <summary>Obergrenze gepufferter Snapshots (Consumer hängt/pausiert → alte verwerfen).</summary>
+    private const int MaxQueuedSnapshots = 32;
 
     private readonly ServerEndpoint _endpoint;
     private readonly EventBus _events;
@@ -35,9 +44,12 @@ public sealed class NakamaNetworkService : INetworkService
     private readonly ConnectionStateMachine _stateMachine = new();
     private readonly ReconnectBackoff _backoff;
 
+    private readonly ConcurrentQueue<MovementSnapshot> _snapshots = new();
+
     private Client? _client;
     private ISession? _session;
     private ISocket? _socket;
+    private IMatch? _match;
     private AuthCredentials _credentials;
     private bool _userInitiatedDisconnect;
 
@@ -127,6 +139,8 @@ public sealed class NakamaNetworkService : INetworkService
             _socket = null;
         }
 
+        _match = null;
+        _snapshots.Clear();
         _session = null;
         Session = null;
         _stateMachine.TryTransitionTo(ConnectionState.Disconnected);
@@ -150,9 +164,130 @@ public sealed class NakamaNetworkService : INetworkService
 
         ISocket socket = Socket.From(_client);
         socket.Closed += OnSocketClosed;
+        socket.ReceivedMatchState += OnReceivedMatchState;
         await socket.ConnectAsync(_session).ConfigureAwait(false);
         _socket = socket;
     }
+
+    // ─── IMatchClient ────────────────────────────────────────────────────────
+
+    /// <inheritdoc />
+    public bool IsInMatch => _match is not null;
+
+    /// <inheritdoc />
+    public async Task JoinMovementMatchAsync(CancellationToken cancellationToken = default)
+    {
+        if (_client is null || _session is null || _socket is null)
+        {
+            throw new InvalidOperationException(
+                "Match-Beitritt erfordert eine bestehende Verbindung (zuerst ConnectAsync).");
+        }
+
+        if (_match is not null)
+        {
+            return;
+        }
+
+        IApiRpc rpc = await _client.RpcAsync(
+            _session, RpcFindOrCreateMovementMatch, canceller: cancellationToken).ConfigureAwait(false);
+
+        MatchIdResponse? response = null;
+        if (!string.IsNullOrWhiteSpace(rpc.Payload))
+        {
+            response = JsonSerializer.Deserialize<MatchIdResponse>(rpc.Payload);
+        }
+
+        if (string.IsNullOrEmpty(response?.MatchId))
+        {
+            throw new InvalidOperationException(
+                $"RPC '{RpcFindOrCreateMovementMatch}' lieferte keine Match-ID.");
+        }
+
+        _match = await _socket.JoinMatchAsync(response.MatchId).ConfigureAwait(false);
+        _logger.Info(LogCategory, $"Bewegungs-Match beigetreten: {_match.Id}.");
+    }
+
+    /// <inheritdoc />
+    public async Task LeaveMatchAsync()
+    {
+        if (_match is null || _socket is null)
+        {
+            _match = null;
+            return;
+        }
+
+        string matchId = _match.Id;
+        _match = null;
+        _snapshots.Clear();
+
+        try
+        {
+            await _socket.LeaveMatchAsync(matchId).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            _logger.Warning(LogCategory, $"Match-Verlassen meldete: {ex.Message}");
+        }
+    }
+
+    /// <inheritdoc />
+    public void SendMovementInput(MovementInputPayload input)
+    {
+        if (_match is null || _socket is null)
+        {
+            return;
+        }
+
+        string json = MovementProtocol.EncodeInput(input);
+        _ = SendMatchStateSafeAsync(_match.Id, MovementProtocol.OpCodeInput, json);
+    }
+
+    /// <inheritdoc />
+    public bool TryDequeueSnapshot(out MovementSnapshot? snapshot)
+    {
+        bool dequeued = _snapshots.TryDequeue(out MovementSnapshot? result);
+        snapshot = result;
+        return dequeued;
+    }
+
+    private async Task SendMatchStateSafeAsync(string matchId, long opCode, string payload)
+    {
+        try
+        {
+            await _socket!.SendMatchStateAsync(matchId, opCode, payload).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            // Fire-and-forget: Der nächste Frame sendet ohnehin neu; nur protokollieren.
+            _logger.Warning(LogCategory, $"Eingabe-Versand fehlgeschlagen: {ex.Message}");
+        }
+    }
+
+    private void OnReceivedMatchState(IMatchState state)
+    {
+        if (state.OpCode != MovementProtocol.OpCodeSnapshot)
+        {
+            return;
+        }
+
+        string json = Encoding.UTF8.GetString(state.State);
+        MovementSnapshot? snapshot = MovementProtocol.DecodeSnapshot(json);
+        if (snapshot is null)
+        {
+            _logger.Warning(LogCategory, "Unlesbarer Snapshot verworfen.");
+            return;
+        }
+
+        _snapshots.Enqueue(snapshot);
+        while (_snapshots.Count > MaxQueuedSnapshots)
+        {
+            _snapshots.TryDequeue(out _); // Ältestes verwerfen — nur der jüngste Stand zählt.
+        }
+    }
+
+    /// <summary>Antwort des Match-RPCs: <c>{"matchId": "…"}</c>.</summary>
+    private sealed record MatchIdResponse(
+        [property: JsonPropertyName("matchId")] string? MatchId);
 
     private void OnSocketClosed()
     {

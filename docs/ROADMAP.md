@@ -66,10 +66,12 @@ Ziel: Serverautoritatives Grundgerüst.
   Sequenznummern, serverseitige Integration mit der Client-Formel, Tick-Snapshots mit Ack;
   Anti-Cheat-Grundlagen (Richtungs-/Zeit-Klemmung, Replay-Schutz, Rate-Limit).
   Lokal gebaut (`tsc`, strikt) + eigener CI-Job
-- ⬜ Adapter + Match-Handler zur Laufzeit gegen den lokalen Docker-Stack verifizieren,
-  dann im Bootstrap den Offline-Stand-in ersetzen (`client/src/Networking/README.md`)
-- ⬜ Godot-Anbindung der Replikation: Eingaben senden, Snapshots empfangen —
-  2 Clients synchron (nutzt `PredictionReconciler`/`SnapshotBuffer`)
+- ✅ Godot-Anbindung der Replikation: `IMatchClient`-Vertrag (Match-Join per RPC,
+  Eingabeversand, thread-sicherer Snapshot-Abruf), SDK-freies Protokollmodul
+  (`MovementProtocol`, CI-getestet gegen das Server-Format) und `ReplicatedWorld`-Szene
+  (`NetPlayground.tscn`): eigene Figur per Prediction/Reconcile, fremde interpoliert
+- ⬜ End-to-End-Abnahme lokal: Docker-Stack starten, Bootstrap auf Nakama umschalten
+  (`client/src/Networking/README.md`), 2 Clients sehen sich synchron
 
 ## Milestone 4 — Gameplay-Vertikale (eine Klasse, eine Zone)  ⬜
 Ziel: Eine durchgängige, echte Spielschleife als Referenzimplementierung.

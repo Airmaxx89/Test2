@@ -1,0 +1,43 @@
+[gd_scene load_steps=4 format=3]
+
+; Netzwerk-Prototyp (Milestone 3): serverautoritative Bewegung mit Client-Prediction.
+; Erfordert den lokalen Nakama-Stack (server/) und den im Bootstrap registrierten
+; Nakama-Adapter (Anleitung: client/src/Networking/README.md). Zwei parallel gestartete
+; Clients sehen sich gegenseitig als interpolierte orange Avatare.
+
+[ext_resource type="Script" path="res://src/Gameplay/Replication/ReplicatedWorld.cs" id="1_world"]
+[ext_resource type="Script" path="res://src/World/Camera/FollowCamera.cs" id="2_cam"]
+[ext_resource type="PackedScene" path="res://scenes/VirtualJoystick.tscn" id="3_joystick"]
+
+[node name="NetPlayground" type="Node2D"]
+script = ExtResource("1_world")
+MoveSpeed = 320.0
+InterpolationDelay = 0.2
+PlayerPath = NodePath("Player")
+InputSourcePath = NodePath("UI/VirtualJoystick")
+
+[node name="Ground" type="ColorRect" parent="."]
+offset_left = -2000.0
+offset_top = -2000.0
+offset_right = 2000.0
+offset_bottom = 2000.0
+color = Color(0.113725, 0.145098, 0.196078, 1)
+
+[node name="Player" type="Node2D" parent="."]
+position = Vector2(640, 360)
+
+[node name="Visual" type="ColorRect" parent="Player"]
+offset_left = -24.0
+offset_top = -24.0
+offset_right = 24.0
+offset_bottom = 24.0
+color = Color(0.360784, 0.690196, 1, 1)
+
+[node name="Camera" type="Camera2D" parent="."]
+script = ExtResource("2_cam")
+Smoothing = 8.0
+TargetPath = NodePath("../Player")
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="VirtualJoystick" parent="UI" instance=ExtResource("3_joystick")]

@@ -38,10 +38,15 @@ ist clientautoritativ.
 | Schicht        | Verantwortung                                              | Darf abhängen von |
 |----------------|------------------------------------------------------------|-------------------|
 | **UI**         | Touch-Eingabe, HUD, Menüs, Darstellung von Zustand         | Gameplay, Core    |
-| **Gameplay**   | Kampf, Charakter, Fähigkeiten, Progression, Quests         | World, Core       |
+| **Gameplay**   | Kampf, Charakter, Fähigkeiten, Progression, Quests, Replikations-Anbindung | World, Networking (nur SDK-freie Verträge), Core |
 | **World**      | Zonen, Streaming, Wetter, Tag/Nacht, Vegetation, Spawns    | Core              |
 | **Networking** | Nakama-Anbindung, Replikation, Prediction/Reconciliation   | Core              |
 | **Core**       | EventBus, ServiceLocator, Logging, Bootstrap, Utilities    | — (nichts)        |
+
+> **Ergänzung (Milestone 3):** Gameplay darf die **SDK-freien Verträge** des
+> Networking-Moduls nutzen (`INetworkService`, `IMatchClient`, Protokoll-/Replikationstypen)
+> — in einem MMO ist serverabhängiges Gameplay der Normalfall. Nakama-SDK-Typen bleiben
+> weiterhin ausschließlich im Adapter (ADR-0002).
 
 > **Regel:** `Core` kennt keine höhere Schicht. Kommunikation nach oben erfolgt
 > **ausschließlich** über den `EventBus` (lose Kopplung), niemals über direkte Referenzen.
