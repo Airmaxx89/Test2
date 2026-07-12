@@ -16,6 +16,9 @@ indent_size = 2
 indent_size = 4
 
 # --- C#-Stil & Analyzer-Regeln ---
+# CA1716 (Membername = reserviertes VB-Schlüsselwort): "Error" ist die idiomatische
+# Logger-API (vgl. ILogger/Serilog/NLog); VB-Interop ist kein Projektziel. Bewusst aus.
+dotnet_diagnostic.CA1716.severity = none
 # Namespaces im Dateibereich (kompakter)
 csharp_style_namespace_declarations = file_scoped:warning
 # Sichtbarkeit immer explizit

@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using Godot;
 
 namespace Aethermoor.Core.Diagnostics;
@@ -63,7 +64,7 @@ public sealed class GodotGameLogger : IGameLogger
     private static string Format(LogLevel level, string category, string message)
     {
         // Beispiel: "12:34:56.789 [INFO ] [Net] Session hergestellt"
-        string time = DateTime.Now.ToString("HH:mm:ss.fff");
+        string time = DateTime.Now.ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture);
         return $"{time} [{level,-5}] [{category}] {message}";
     }
 }

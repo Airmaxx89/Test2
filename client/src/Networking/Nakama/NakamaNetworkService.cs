@@ -35,7 +35,7 @@ public sealed class NakamaNetworkService : INetworkService
     private readonly ConnectionStateMachine _stateMachine = new();
     private readonly ReconnectBackoff _backoff;
 
-    private IClient? _client;
+    private Client? _client;
     private ISession? _session;
     private ISocket? _socket;
     private AuthCredentials _credentials;
@@ -139,7 +139,8 @@ public sealed class NakamaNetworkService : INetworkService
         _client ??= new Client(_endpoint.Scheme, _endpoint.Host, _endpoint.Port, _endpoint.ServerKey);
 
         _session = await _client.AuthenticateDeviceAsync(
-            _credentials.DeviceId, _credentials.Username, create: true).ConfigureAwait(false);
+            _credentials.DeviceId, _credentials.Username, create: true,
+            canceller: cancellationToken).ConfigureAwait(false);
 
         Session = new SessionInfo(
             UserId: _session.UserId,

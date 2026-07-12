@@ -17,8 +17,8 @@ public readonly record struct ConnectionStateChange(ConnectionState Previous, Co
 /// </remarks>
 public sealed class ConnectionStateMachine
 {
-    private static readonly IReadOnlyDictionary<ConnectionState, ConnectionState[]> AllowedTransitions =
-        new Dictionary<ConnectionState, ConnectionState[]>
+    private static readonly Dictionary<ConnectionState, ConnectionState[]> AllowedTransitions =
+        new()
         {
             [ConnectionState.Disconnected] = new[] { ConnectionState.Connecting },
             [ConnectionState.Connecting] = new[]
