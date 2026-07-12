@@ -46,6 +46,13 @@
     <Compile Include="../client/src/Gameplay/Targeting/TargetCandidate.cs" />
     <Compile Include="../client/src/Gameplay/Targeting/SmartTargetSelector.cs" />
     <Compile Include="../client/src/World/Camera/CameraFollowSolver.cs" />
+    <Compile Include="../client/src/Networking/Connection/ConnectionState.cs" />
+    <Compile Include="../client/src/Networking/Connection/ConnectionStateMachine.cs" />
+    <Compile Include="../client/src/Networking/Connection/ReconnectBackoff.cs" />
+    <Compile Include="../client/src/Networking/Model/NetworkModels.cs" />
+    <Compile Include="../client/src/Networking/NetworkEvents.cs" />
+    <Compile Include="../client/src/Networking/INetworkService.cs" />
+    <Compile Include="../client/src/Networking/OfflineNetworkService.cs" />
   </ItemGroup>
 
 </Project>

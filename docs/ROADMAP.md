@@ -49,11 +49,17 @@ Ziel: Sich anfühlen wie ein Mobile-Spiel, noch ohne Netzwerk.
 - ⬜ Steuerung lokal im Godot-Editor verifizieren (Joystick + Auto-Lauf bewegen Charakter,
   Kamera folgt)
 
-## Milestone 3 — Netzwerk-Fundament (Nakama)  ⬜
+## Milestone 3 — Netzwerk-Fundament (Nakama)  🔄
 Ziel: Serverautoritatives Grundgerüst.
 
-- ⬜ Lokaler Nakama-Stack (Docker-Compose) in `server/`
-- ⬜ Auth + Session + Socket im `Networking`-Modul
+- ✅ Lokaler Nakama-Stack (Docker-Compose) in `server/` (aus M0)
+- ✅ SDK-freie Abstraktion `INetworkService` (kapselt Nakama, ADR-0002)
+- ✅ `ConnectionStateMachine` — validierte Verbindungsübergänge — Unit-getestet
+- ✅ `ReconnectBackoff` — exponentiell + Jitter (Thundering-Herd-Schutz) — Unit-getestet
+- ✅ Domänenmodelle (`ServerEndpoint`, `AuthCredentials`, `SessionInfo`) + Netz-Events
+- ✅ `OfflineNetworkService` (SDK-freier Stand-in) im Bootstrap registriert — Unit-getestet
+- ⬜ `NakamaNetworkService`: konkreter Adapter (Auth + Session + Socket), gegen Docker-Stack
+  verifiziert — ersetzt den Offline-Stand-in
 - ⬜ Bewegungsreplikation: Prediction + Reconciliation (2 Clients synchron)
 
 ## Milestone 4 — Gameplay-Vertikale (eine Klasse, eine Zone)  ⬜

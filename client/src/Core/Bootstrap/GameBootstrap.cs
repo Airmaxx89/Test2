@@ -3,6 +3,7 @@ using Aethermoor.Core.Diagnostics;
 using Aethermoor.Core.Events;
 using Aethermoor.Core.Scenes;
 using Aethermoor.Core.Services;
+using Aethermoor.Networking;
 using Godot;
 
 namespace Aethermoor.Core.Bootstrap;
@@ -64,10 +65,14 @@ public sealed partial class GameBootstrap : Node
 
         Events = new EventBus(Logger);
 
-        // Kern-Dienste registrieren. Weitere Domänen-Dienste (Netzwerk, Audio, Welt) folgen
-        // in kommenden Milestones — an genau dieser Stelle und in kontrollierter Reihenfolge.
+        // Kern- und Domänen-Dienste registrieren — an genau dieser Stelle und in
+        // kontrollierter Reihenfolge. Weitere Dienste (Audio, Welt) folgen später.
         Scenes = new SceneRouter(GetTree(), Events, Logger);
         Services.Register<SceneRouter>(Scenes);
+
+        // Netzwerk: vorerst der SDK-freie Offline-Stand-in; der Nakama-Adapter ersetzt ihn
+        // in der Folge-Iteration von Milestone 3 (ADR-0002).
+        Services.Register<INetworkService>(new OfflineNetworkService(Events, Logger));
 
         InitializeRegisteredServices();
 
