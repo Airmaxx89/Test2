@@ -26,21 +26,37 @@ modules/
 └── build/index.js         # Artefakt (gitignored), wird in den Container gemountet
 ```
 
-## Bewegungsprotokoll (Client ↔ Server)
+## Protokoll (Client ↔ Server)
 
-| OpCode | Richtung        | Payload (JSON)                                        |
-|--------|-----------------|-------------------------------------------------------|
-| 1      | Client → Server | `{seq, dx, dy, dt}` — Eingabe mit Sequenznummer       |
-| 2      | Server → Client | `{t, players: [{id, x, y, ack}]}` — Tick-Snapshot     |
+| OpCode | Richtung        | Payload (JSON)                                                  |
+|--------|-----------------|------------------------------------------------------------------|
+| 1      | Client → Server | `{seq, dx, dy, dt}` — Bewegungs-Eingabe mit Sequenznummer        |
+| 2      | Server → Client | `{t, players: [{id, x, y, ack, hp, res, xp}], enemies: [{sid, x, y, hp}]}` — Tick-Snapshot |
+| 3      | Client → Server | `{ability, target?}` — Wirkwunsch (target = Spawn-ID des Gegners) |
+| 4      | Server → Wirkenden | `{ok, ability, reason? \| damage?, combo?, targetHealth?, xp?, heal?}` — Wirk-Ergebnis |
 
-Der Server integriert Eingaben mit **derselben Formel** wie die Client-Prediction
+Der Server integriert Bewegungs-Eingaben mit **derselben Formel** wie die Client-Prediction
 (`PredictionReconciler`): `position += richtung · MOVE_SPEED · dt`. `ack` ist die pro
 Spieler zuletzt verarbeitete Sequenznummer und steuert die Client-Reconciliation.
 
+**Autoritativer Kampf (`combat_data.ts` + `handleCastMessage`):** Der Server prüft dieselben
+Regeln wie die Client-Vorhersage (`AbilityCaster`) — bekannte Fähigkeit, Cooldown, Ressource,
+Ziel, Reichweite (+ Latenz-Toleranz) — und führt Schaden, Combo-Marker (Finisher verbraucht
+vor der Rechnung), Heilung, XP-Vergabe und Gegner-Respawns verbindlich aus. Ablehnungen
+(`reason`: `cooldown`, `resource`, `out_of_range`, …) gehen nur an den Wirkenden.
+
 **Serverseitige Validierung (Anti-Cheat-Grundlagen):** Richtungsvektoren werden auf
-Länge 1 geklemmt, `dt` auf 0,1 s begrenzt, veraltete/wiederholte Sequenznummern verworfen
-und Eingaben pro Tick rate-limitiert. Balancing-Konstanten (`MOVE_SPEED`) leben hier,
-nicht im Client.
+Länge 1 geklemmt, `dt` auf 0,1 s begrenzt, veraltete/wiederholte Sequenznummern verworfen,
+Eingaben pro Tick rate-limitiert; Kampf komplett servergeführt. Balancing-Konstanten
+(`MOVE_SPEED`, Fähigkeiten-/Gegnerwerte) leben hier, nicht im Client.
+
+**Bekannte Grenzen dieser Ausbaustufe (bewusst iterativ):**
+- Zonen-Gegner stehen serverseitig an ihren Heimatpunkten (keine Server-KI-Bewegung);
+  die Client-KI ist bis zur Server-KI-Iteration rein kosmetisch.
+- Gegner greifen serverseitig noch nicht an (Spieler-`hp` wird nur durch Heilung bewegt).
+- Werte in `combat_data.ts` spiegeln die Client-.tres-Dateien; eine generierte gemeinsame
+  Schema-Quelle ist als spätere Iteration vorgesehen. Bis dahin ist `combat_data.ts` die
+  autoritative Wahrheit.
 
 ## RPCs
 

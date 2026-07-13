@@ -13,6 +13,7 @@
   },
   "files": [
     "types/nkruntime.d.ts",
+    "src/combat_data.ts",
     "src/movement_match.ts",
     "src/main.ts"
   ]

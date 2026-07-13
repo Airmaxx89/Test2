@@ -114,6 +114,20 @@ Ziel: Eine durchgängige, echte Spielschleife als Referenzimplementierung.
 - ⬜ Zone „Morgenau" (Streaming, Spawns, 1 Quest)
 - ⬜ Gegner-KI: Aggro/Patrouille/Heimkehr
 
+## Milestone 5 — Serverautoritativer Kampf  🔄
+Ziel: Der Server führt den Kampf verbindlich; der Client sagt nur voraus (ADR-0002).
+
+- ✅ Autoritative Kampf-Daten serverseitig (`combat_data.ts`: 5 Wächter-Fähigkeiten,
+  Gegnertypen, Zonen-Spawnliste) — erste echte Instanz von „Balancing lebt am Server"
+- ✅ Wirk-Validierung im Match-Handler (OpCodes 3/4): Cooldown, Ressource, Ziel,
+  Reichweite (+ Latenz-Toleranz); autoritative Schadens-/Combo-/Heil-/XP-Auflösung;
+  Gegner-Leben + Respawns servergeführt; erweiterte Snapshots (hp/res/xp + enemies)
+- ⬜ Client-Anbindung: Casts über `IMatchClient` senden, `CAST_RESULT`/Snapshots mit
+  der lokalen Vorhersage abgleichen (Rollback bei Ablehnung)
+- ⬜ Server-KI: Gegnerbewegung/-angriffe in den Match-Handler heben (Client-KI wird
+  reine Darstellung)
+- ⬜ Gemeinsame Daten-Quelle für Client-.tres und `combat_data.ts` (generiert)
+
 ## Milestone 5+ — Content-Skalierung  ⬜
 Weitere Klassen, Zonen, Berufe, Dungeon, Auktionshaus, Gilden — jeweils als eigene
 Iteration, ermöglicht durch das datengetriebene Fundament.
