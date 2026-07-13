@@ -90,8 +90,12 @@ Ziel: Eine durchgängige, echte Spielschleife als Referenzimplementierung.
 - ✅ Smart-Targeting angebunden: `CombatDirector` wählt Ziel per `SmartTargetSelector`
   (Reichweite + Blickkegel), markiert es und liefert der Zauberleiste die echte
   Zieldistanz (`ITargetDistanceProvider`); Schadens-Fähigkeiten treffen das Ziel
-- ⬜ Wächter-Klasse (1 Spec) auf 5 Fähigkeiten ausbauen; Gegner greifen den Spieler an
-  (Spieler-`HealthPool` + Schadenszahlen); lokal im Editor verifizieren
+- ✅ Beidseitiger Kampf: Gegner greifen an (`AttackTicker`, Werte aus Daten), Spieler hat
+  `HealthPool` + Respawn; „Zweiter Wind" heilt tatsächlich; Kampfzahlen als **gepoolte**
+  schwebende Zahlen (`DamageNumberSpawner` nutzt `ObjectPool`); HUD-Lebensbalken
+  (event-getrieben, kein Polling)
+- ⬜ Wächter-Klasse (1 Spec) auf 5 Fähigkeiten ausbauen; Kampfschleife lokal im Editor
+  verifizieren (Gegner beißt zurück, Zahlen schweben, Heilung wirkt, Respawn)
 - ⬜ Server-validierte Kampfauflösung (Cooldown/Reichweite/Schaden)
 - ⬜ Zone „Morgenau" (Streaming, Spawns, 1 Quest)
 - ⬜ Gegner-KI: Aggro/Patrouille/Heimkehr

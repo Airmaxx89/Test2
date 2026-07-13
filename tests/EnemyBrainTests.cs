@@ -13,7 +13,8 @@ public sealed class EnemyBrainTests
         float aggro = 260f,
         float leash = 600f,
         float attackRange = 70f)
-        => new("test.gegner", "Testgegner", 120f, 160f, aggro, leash, attackRange);
+        => new("test.gegner", "Testgegner", 120f, 160f, aggro, leash, attackRange,
+            AttackDamage: 12f, AttackIntervalSeconds: 1.5f);
 
     private static EnemyBrain Brain(
         EnemyDefinition? definition = null,

@@ -15,6 +15,8 @@ namespace Aethermoor.Gameplay.Enemies;
 /// kehrt heim (Anti-Kiting, GAME_DESIGN §8).
 /// </param>
 /// <param name="AttackRange">Reichweite, ab der angegriffen statt verfolgt wird.</param>
+/// <param name="AttackDamage">Schaden pro Angriff.</param>
+/// <param name="AttackIntervalSeconds">Mindestabstand zwischen zwei Angriffen in Sekunden.</param>
 public sealed record EnemyDefinition(
     string Id,
     string DisplayName,
@@ -22,4 +24,6 @@ public sealed record EnemyDefinition(
     float MoveSpeed,
     float AggroRadius,
     float LeashRadius,
-    float AttackRange);
+    float AttackRange,
+    float AttackDamage,
+    float AttackIntervalSeconds);

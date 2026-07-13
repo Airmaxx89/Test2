@@ -14,3 +14,5 @@ MoveSpeed = 160.0
 AggroRadius = 260.0
 LeashRadius = 600.0
 AttackRange = 70.0
+AttackDamage = 12.0
+AttackIntervalSeconds = 1.5

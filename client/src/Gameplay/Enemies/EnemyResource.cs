@@ -31,7 +31,14 @@ public partial class EnemyResource : Resource
     /// <summary>Angriffsreichweite in px.</summary>
     [Export(PropertyHint.Range, "0,2000,5")] public float AttackRange { get; set; } = 70f;
 
+    /// <summary>Schaden pro Angriff.</summary>
+    [Export(PropertyHint.Range, "0,10000,1")] public float AttackDamage { get; set; } = 10f;
+
+    /// <summary>Mindestabstand zwischen zwei Angriffen in Sekunden.</summary>
+    [Export(PropertyHint.Range, "0.2,30,0.1")] public float AttackIntervalSeconds { get; set; } = 1.5f;
+
     /// <summary>Übersetzt in die engine-freie Definition für die KI-Logik.</summary>
     public EnemyDefinition ToDefinition()
-        => new(Id, DisplayName, MaxHealth, MoveSpeed, AggroRadius, LeashRadius, AttackRange);
+        => new(Id, DisplayName, MaxHealth, MoveSpeed, AggroRadius, LeashRadius, AttackRange,
+            AttackDamage, AttackIntervalSeconds);
 }

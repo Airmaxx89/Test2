@@ -46,6 +46,7 @@
     <Compile Include="../client/src/Gameplay/Abilities/AbilityCaster.cs" />
     <Compile Include="../client/src/Gameplay/Abilities/AbilityStatus.cs" />
     <Compile Include="../client/src/Gameplay/Combat/HealthPool.cs" />
+    <Compile Include="../client/src/Gameplay/Combat/AttackTicker.cs" />
     <Compile Include="../client/src/Gameplay/Enemies/EnemyDefinition.cs" />
     <Compile Include="../client/src/Gameplay/Enemies/EnemyAiState.cs" />
     <Compile Include="../client/src/Gameplay/Enemies/EnemyAiDecision.cs" />

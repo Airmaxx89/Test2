@@ -1,5 +1,6 @@
 using System;
 using Aethermoor.Core.Bootstrap;
+using Aethermoor.Gameplay.Character;
 using Aethermoor.Gameplay.Combat;
 using Aethermoor.Gameplay.Targeting;
 using Godot;
@@ -46,7 +47,9 @@ public sealed partial class EnemyController : Node2D
     private EnemyDefinition _definition = null!;
     private EnemyBrain _brain = null!;
     private HealthPool _health = null!;
+    private AttackTicker _attackTicker = null!;
     private Node2D? _player;
+    private LocalCharacterController? _playerCharacter;
     private bool _isTargeted;
 
     /// <summary>Ob der Gegner tot ist (nicht mehr anvisierbar).</summary>
@@ -66,6 +69,8 @@ public sealed partial class EnemyController : Node2D
 
         _definition = resource.ToDefinition();
         _health = new HealthPool(_definition.MaxHealth);
+        _attackTicker = new AttackTicker(_definition.AttackIntervalSeconds);
+        _playerCharacter = _player as LocalCharacterController;
 
         var home = new NumericsVector2(GlobalPosition.X, GlobalPosition.Y);
         var offsets = new NumericsVector2[PatrolOffsets.Length];
@@ -95,7 +100,11 @@ public sealed partial class EnemyController : Node2D
         GlobalPosition += new Vector2(decision.MoveDirection.X, decision.MoveDirection.Y)
             * _definition.MoveSpeed * (float)delta;
 
-        // Angriffsauflösung (Schaden am Spieler) folgt mit dem Spieler-HealthPool.
+        if (decision.WantsToAttack && _attackTicker.TryAttack(Time.GetTicksMsec() / 1000.0))
+        {
+            _playerCharacter?.ApplyDamage(_definition.AttackDamage);
+        }
+
         QueueRedraw();
     }
 
@@ -106,13 +115,16 @@ public sealed partial class EnemyController : Node2D
             new NumericsVector2(GlobalPosition.X, GlobalPosition.Y),
             IsTargetable: !_health.IsDead);
 
-    /// <summary>Wendet (prädiktiven) Schaden an; bei 0 Leben stirbt der Gegner sichtbar.</summary>
-    public void ApplyDamage(float amount)
+    /// <summary>
+    /// Wendet (prädiktiven) Schaden an und liefert den tatsächlich abgezogenen Betrag;
+    /// bei 0 Leben stirbt der Gegner sichtbar.
+    /// </summary>
+    public float ApplyDamage(float amount)
     {
         float applied = _health.ApplyDamage(amount);
         if (applied <= 0f)
         {
-            return;
+            return 0f;
         }
 
         if (_health.IsDead)
@@ -123,6 +135,7 @@ public sealed partial class EnemyController : Node2D
         }
 
         QueueRedraw();
+        return applied;
     }
 
     /// <summary>Setzt die sichtbare Ziel-Markierung (vom Zielsystem gesteuert).</summary>

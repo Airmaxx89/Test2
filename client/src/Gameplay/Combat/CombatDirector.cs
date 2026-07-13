@@ -110,19 +110,39 @@ public sealed partial class CombatDirector : Node, ITargetDistanceProvider
 
     private void OnAbilityCast(AbilityCastPredictedEvent castEvent)
     {
-        if (castEvent.EffectType != AbilityEffectType.Damage)
+        switch (castEvent.EffectType)
         {
-            return; // Heilung u. Ä. betrifft (noch) nicht die Gegner.
-        }
+            case AbilityEffectType.Heal:
+                _player?.Heal(castEvent.Magnitude);
+                break;
 
+            case AbilityEffectType.Damage:
+                ApplyDamageToCurrentTarget(castEvent);
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    private void ApplyDamageToCurrentTarget(AbilityCastPredictedEvent castEvent)
+    {
         if (_currentTarget is null || _currentTarget.IsDead)
         {
             return; // Reichweite/Ziel wurden bereits beim Wirken geprüft (AbilityBar).
         }
 
-        _currentTarget.ApplyDamage(castEvent.Magnitude);
+        float applied = _currentTarget.ApplyDamage(castEvent.Magnitude);
+        if (applied <= 0f)
+        {
+            return;
+        }
+
+        var position = new NumericsVector2(
+            _currentTarget.GlobalPosition.X, _currentTarget.GlobalPosition.Y);
+        _game.Events.Publish(new CombatNumberEvent(position, applied, CombatNumberKind.DamageDealt));
         _game.Logger.Debug(
             LogCategory,
-            $"{castEvent.AbilityId} trifft Ziel für {castEvent.Magnitude:F0} Schaden (prädiktiv).");
+            $"{castEvent.AbilityId} trifft Ziel für {applied:F0} Schaden (prädiktiv).");
     }
 }
