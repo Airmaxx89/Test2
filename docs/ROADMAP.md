@@ -84,8 +84,14 @@ Ziel: Eine durchgängige, echte Spielschleife als Referenzimplementierung.
   Ressourcenpfade) + `AbilityButton` (radiale Cooldown-Anzeige, Ausgrauen);
   Zustands-Ableitung engine-frei (`AbilityStatusResolver`, getestet); Wirk-Ereignisse
   über EventBus (`AbilityCastPredicted/Rejected`)
-- ⬜ Wächter-Klasse (1 Spec) auf 5 Fähigkeiten ausbauen; Zauberleiste lokal im Editor
-  verifizieren (Cooldown-Anzeige, Mana-Ausgrauen)
+- ✅ Gegner-Grundlage: engine-freies KI-Gehirn (`EnemyBrain`: Patrouille → Aggro
+  [klebrig] → Verfolgen/Angriff → Leine/Heimkehr, getestet) + `HealthPool` (getestet);
+  `EnemyResource`-Daten + `EnemyController` (Zustandsfarbe, Lebensbalken, Zielring)
+- ✅ Smart-Targeting angebunden: `CombatDirector` wählt Ziel per `SmartTargetSelector`
+  (Reichweite + Blickkegel), markiert es und liefert der Zauberleiste die echte
+  Zieldistanz (`ITargetDistanceProvider`); Schadens-Fähigkeiten treffen das Ziel
+- ⬜ Wächter-Klasse (1 Spec) auf 5 Fähigkeiten ausbauen; Gegner greifen den Spieler an
+  (Spieler-`HealthPool` + Schadenszahlen); lokal im Editor verifizieren
 - ⬜ Server-validierte Kampfauflösung (Cooldown/Reichweite/Schaden)
 - ⬜ Zone „Morgenau" (Streaming, Spawns, 1 Quest)
 - ⬜ Gegner-KI: Aggro/Patrouille/Heimkehr

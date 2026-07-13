@@ -31,6 +31,9 @@ public sealed partial class LocalCharacterController : CharacterBody2D
     private IMovementInputSource? _input;
     private NumericsVector2 _lastFacing;
 
+    /// <summary>Letzte Blickrichtung (Einheitsvektor) — Grundlage für Smart-Targeting-Kegel.</summary>
+    public NumericsVector2 Facing => _lastFacing;
+
     /// <summary>Ob Auto-Laufen aktuell aktiv ist (für UI-Zustandsanzeige).</summary>
     public bool IsAutoRunning => _autoRun.IsActive;
 

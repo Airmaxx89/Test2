@@ -7,7 +7,10 @@ namespace Aethermoor.Gameplay.Abilities;
 /// „Prädiktiv", weil die verbindliche Auflösung serverseitig erfolgt (ADR-0002) — Audio/VFX
 /// dürfen darauf sofort reagieren, Spielzustand nicht.
 /// </summary>
-public readonly record struct AbilityCastPredictedEvent(string AbilityId) : IGameEvent;
+public readonly record struct AbilityCastPredictedEvent(
+    string AbilityId,
+    AbilityEffectType EffectType,
+    float Magnitude) : IGameEvent;
 
 /// <summary>
 /// Wird veröffentlicht, wenn ein Wirkversuch clientseitig abgelehnt wurde — Grundlage für

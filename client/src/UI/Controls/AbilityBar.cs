@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Aethermoor.Core.Bootstrap;
 using Aethermoor.Gameplay.Abilities;
+using Aethermoor.Gameplay.Targeting;
 using Godot;
 
 namespace Aethermoor.UI.Controls;
@@ -37,20 +38,34 @@ public sealed partial class AbilityBar : Control
     /// <summary>Ressourcen-Regeneration pro Sekunde.</summary>
     [Export(PropertyHint.Range, "0,100,0.5")] public float ResourceRegenPerSecond { get; set; } = 5f;
 
+    /// <summary>
+    /// Optionaler Pfad zu einem <see cref="ITargetDistanceProvider"/> (Zielsystem) für die
+    /// Reichweitenprüfung. Ohne Provider gilt Distanz 0 (alles in Reichweite).
+    /// </summary>
+    [Export] public NodePath TargetProviderPath { get; set; } = new();
+
     private readonly List<AbilityButton> _buttons = new();
+    private readonly Dictionary<string, AbilityDefinition> _definitionsById = new();
     private GameBootstrap _game = null!;
     private AbilityCaster? _caster;
+    private ITargetDistanceProvider? _targetProvider;
 
     public override void _Ready()
     {
         _game = GetNode<GameBootstrap>("/root/Game");
         MouseFilter = MouseFilterEnum.Ignore; // nur die Buttons fangen Berührungen
+        _targetProvider = GetNodeOrNull(TargetProviderPath) as ITargetDistanceProvider;
 
         List<AbilityDefinition> definitions = LoadDefinitions();
         if (definitions.Count == 0)
         {
             _game.Logger.Warning(LogCategory, "Zauberleiste ohne Fähigkeiten — keine Buttons erzeugt.");
             return;
+        }
+
+        foreach (AbilityDefinition definition in definitions)
+        {
+            _definitionsById[definition.Id] = definition;
         }
 
         _caster = new AbilityCaster(definitions, MaxResource);
@@ -87,11 +102,14 @@ public sealed partial class AbilityBar : Control
             return;
         }
 
-        // Distanz 0: noch keine Ziele — Smart-Targeting-Anbindung folgt mit dem Gegner-Milestone.
-        if (_caster.TryCast(abilityId, NowSeconds(), distanceToTarget: 0f, out CastFailureReason reason))
+        // Zieldistanz vom Zielsystem; ohne Provider gilt 0 (alles in Reichweite).
+        float distance = _targetProvider?.DistanceToTarget ?? 0f;
+        if (_caster.TryCast(abilityId, NowSeconds(), distance, out CastFailureReason reason))
         {
+            AbilityDefinition definition = _definitionsById[abilityId];
             _game.Logger.Debug(LogCategory, $"Gewirkt (prädiktiv): {abilityId}.");
-            _game.Events.Publish(new AbilityCastPredictedEvent(abilityId));
+            _game.Events.Publish(new AbilityCastPredictedEvent(
+                abilityId, definition.EffectType, definition.Magnitude));
         }
         else
         {

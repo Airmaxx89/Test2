@@ -45,6 +45,11 @@
     <Compile Include="../client/src/Gameplay/Abilities/CastFailureReason.cs" />
     <Compile Include="../client/src/Gameplay/Abilities/AbilityCaster.cs" />
     <Compile Include="../client/src/Gameplay/Abilities/AbilityStatus.cs" />
+    <Compile Include="../client/src/Gameplay/Combat/HealthPool.cs" />
+    <Compile Include="../client/src/Gameplay/Enemies/EnemyDefinition.cs" />
+    <Compile Include="../client/src/Gameplay/Enemies/EnemyAiState.cs" />
+    <Compile Include="../client/src/Gameplay/Enemies/EnemyAiDecision.cs" />
+    <Compile Include="../client/src/Gameplay/Enemies/EnemyBrain.cs" />
     <Compile Include="../client/src/Gameplay/Input/JoystickOutput.cs" />
     <Compile Include="../client/src/Gameplay/Input/VirtualJoystickProcessor.cs" />
     <Compile Include="../client/src/Gameplay/Input/AutoRunController.cs" />

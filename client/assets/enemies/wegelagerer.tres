@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="EnemyResource" load_steps=2 format=3]
+
+; Silberwald: Wegelagerer — Standard-Nahkampfgegner der Level-8-20-Zone.
+; Werte sind Client-Vorschau; verbindliches Balancing lebt serverseitig (ADR-0002).
+
+[ext_resource type="Script" path="res://src/Gameplay/Enemies/EnemyResource.cs" id="1_enemy"]
+
+[resource]
+script = ExtResource("1_enemy")
+Id = "silberwald.wegelagerer"
+DisplayName = "Wegelagerer"
+MaxHealth = 120.0
+MoveSpeed = 160.0
+AggroRadius = 260.0
+LeashRadius = 600.0
+AttackRange = 70.0

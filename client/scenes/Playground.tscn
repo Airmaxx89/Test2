@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=9 format=3]
 
 ; Interaktiver Steuerungs-Prototyp (Milestone 2): virtueller Joystick bewegt einen
 ; Platzhalter-Charakter, dem eine geglättete Folgekamera nachzieht. Ersetzt vorübergehend das
@@ -8,6 +8,8 @@
 [ext_resource type="Script" path="res://src/World/Camera/FollowCamera.cs" id="2_cam"]
 [ext_resource type="PackedScene" path="res://scenes/VirtualJoystick.tscn" id="3_joystick"]
 [ext_resource type="Script" path="res://src/UI/Controls/AbilityBar.cs" id="4_abilitybar"]
+[ext_resource type="Script" path="res://src/Gameplay/Enemies/EnemyController.cs" id="5_enemy"]
+[ext_resource type="Script" path="res://src/Gameplay/Combat/CombatDirector.cs" id="6_combat"]
 
 [sub_resource type="RectangleShape2D" id="shape_player"]
 size = Vector2(48, 48)
@@ -36,6 +38,26 @@ color = Color(0.360784, 0.690196, 1, 1)
 
 [node name="Collision" type="CollisionShape2D" parent="Player"]
 shape = SubResource("shape_player")
+
+[node name="Wegelagerer1" type="Node2D" parent="."]
+position = Vector2(1050, 260)
+script = ExtResource("5_enemy")
+DefinitionPath = "res://assets/enemies/wegelagerer.tres"
+PlayerPath = NodePath("../Player")
+PatrolOffsets = PackedVector2Array(0, 0, 140, 0, 140, 120, 0, 120)
+
+[node name="Wegelagerer2" type="Node2D" parent="."]
+position = Vector2(1150, 560)
+script = ExtResource("5_enemy")
+DefinitionPath = "res://assets/enemies/wegelagerer.tres"
+PlayerPath = NodePath("../Player")
+PatrolOffsets = PackedVector2Array()
+
+[node name="CombatDirector" type="Node" parent="."]
+script = ExtResource("6_combat")
+PlayerPath = NodePath("../Player")
+MaxTargetRange = 600.0
+ConeHalfAngleDegrees = 100.0
 
 [node name="Camera" type="Camera2D" parent="."]
 script = ExtResource("2_cam")
@@ -69,5 +91,6 @@ script = ExtResource("4_abilitybar")
 AbilityPaths = PackedStringArray("res://assets/abilities/waechter_schildschlag.tres", "res://assets/abilities/waechter_zweiter_wind.tres")
 MaxResource = 100.0
 ResourceRegenPerSecond = 5.0
+TargetProviderPath = NodePath("../../CombatDirector")
 
 [connection signal="pressed" from="UI/AutoRunButton" to="Player" method="ToggleAutoRun"]
