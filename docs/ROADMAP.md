@@ -98,8 +98,14 @@ Ziel: Eine durchgängige, echte Spielschleife als Referenzimplementierung.
   ein Finisher pro Marker, Ziele unabhängig — getestet); Definition/Resource um
   Combo-Felder erweitert (validiert); Combo-Paar Wappenbruch → Vergeltung (+60 %)
   und Fernoption Schildwurf als Daten; Cast-Event trägt jetzt die volle Definition
-- ⬜ Kampfschleife lokal im Editor verifizieren (5er-Leiste, Combo-Bonus sichtbar,
-  Gegner beißt zurück, Heilung wirkt, Respawn)
+- ✅ Zone „Morgenau" + Spawn-System: `ZoneController`/`SpawnPoint` (Zonen sind
+  Szenen-Daten; Respawns über getesteten `RespawnScheduler`); Gegner-Tode als
+  `EnemyDefeatedEvent` über den EventBus
+- ✅ Erste Quest: engine-freier `QuestTracker` (getestet) + `QuestResource`-Daten,
+  `QuestDirector` + Quest-HUD; „Plage am Wegesrand" (3 Wegelagerer) in Morgenau;
+  Splash-Ziel ist jetzt Morgenau
+- ⬜ Vertikale lokal im Editor verifizieren (Quest zählt, Respawn nach 20 s,
+  Combo-Bonus, Gegner beißt zurück, Heilung, Respawn des Spielers)
 - ⬜ Server-validierte Kampfauflösung (Cooldown/Reichweite/Schaden)
 - ⬜ Zone „Morgenau" (Streaming, Spawns, 1 Quest)
 - ⬜ Gegner-KI: Aggro/Patrouille/Heimkehr

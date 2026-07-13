@@ -1,0 +1,139 @@
+[gd_scene load_steps=13 format=3]
+
+; Zone "Morgenau" (Startgebiet, GAME_DESIGN §2.2) — erste echte Weltstruktur der Vertikale:
+; Zone/Spawnpunkte als Szenen-Daten, Respawns über den ZoneController, Quest "Plage am
+; Wegesrand" (3 Wegelagerer) mit HUD-Anzeige. Ziel des Splash-Flusses.
+
+[ext_resource type="Script" path="res://src/Gameplay/Character/LocalCharacterController.cs" id="1_char"]
+[ext_resource type="Script" path="res://src/World/Camera/FollowCamera.cs" id="2_cam"]
+[ext_resource type="PackedScene" path="res://scenes/VirtualJoystick.tscn" id="3_joystick"]
+[ext_resource type="Script" path="res://src/UI/Controls/AbilityBar.cs" id="4_abilitybar"]
+[ext_resource type="Script" path="res://src/Gameplay/Combat/CombatDirector.cs" id="5_combat"]
+[ext_resource type="Script" path="res://src/UI/HUD/DamageNumberSpawner.cs" id="6_dmgnum"]
+[ext_resource type="Script" path="res://src/UI/HUD/PlayerHealthBar.cs" id="7_healthbar"]
+[ext_resource type="Script" path="res://src/Gameplay/Zones/ZoneController.cs" id="8_zone"]
+[ext_resource type="Script" path="res://src/Gameplay/Zones/SpawnPoint.cs" id="9_spawn"]
+[ext_resource type="Script" path="res://src/Gameplay/Quests/QuestDirector.cs" id="10_quest"]
+[ext_resource type="Script" path="res://src/UI/HUD/QuestHud.cs" id="11_questhud"]
+
+[sub_resource type="RectangleShape2D" id="shape_player"]
+size = Vector2(48, 48)
+
+[node name="Morgenau" type="Node2D"]
+
+[node name="Ground" type="ColorRect" parent="."]
+offset_left = -2000.0
+offset_top = -2000.0
+offset_right = 2000.0
+offset_bottom = 2000.0
+color = Color(0.152941, 0.223529, 0.152941, 1)
+
+[node name="Player" type="CharacterBody2D" parent="."]
+position = Vector2(640, 360)
+script = ExtResource("1_char")
+MoveSpeed = 320.0
+MaxHealth = 200.0
+InputSourcePath = NodePath("../UI/VirtualJoystick")
+
+[node name="Visual" type="ColorRect" parent="Player"]
+offset_left = -24.0
+offset_top = -24.0
+offset_right = 24.0
+offset_bottom = 24.0
+color = Color(0.360784, 0.690196, 1, 1)
+
+[node name="Collision" type="CollisionShape2D" parent="Player"]
+shape = SubResource("shape_player")
+
+[node name="Zone" type="Node2D" parent="."]
+script = ExtResource("8_zone")
+PlayerPath = NodePath("../Player")
+
+[node name="Spawn1" type="Node2D" parent="Zone"]
+position = Vector2(1100, 250)
+script = ExtResource("9_spawn")
+EnemyDefinitionPath = "res://assets/enemies/wegelagerer.tres"
+PatrolOffsets = PackedVector2Array(0, 0, 150, 0, 150, 130, 0, 130)
+RespawnDelaySeconds = 20.0
+
+[node name="Spawn2" type="Node2D" parent="Zone"]
+position = Vector2(1250, 600)
+script = ExtResource("9_spawn")
+EnemyDefinitionPath = "res://assets/enemies/wegelagerer.tres"
+PatrolOffsets = PackedVector2Array()
+RespawnDelaySeconds = 20.0
+
+[node name="Spawn3" type="Node2D" parent="Zone"]
+position = Vector2(750, 900)
+script = ExtResource("9_spawn")
+EnemyDefinitionPath = "res://assets/enemies/wegelagerer.tres"
+PatrolOffsets = PackedVector2Array(0, 0, -170, 60)
+RespawnDelaySeconds = 20.0
+
+[node name="QuestDirector" type="Node" parent="."]
+script = ExtResource("10_quest")
+QuestPath = "res://assets/quests/morgenau_wegelagerer.tres"
+
+[node name="CombatDirector" type="Node" parent="."]
+script = ExtResource("5_combat")
+PlayerPath = NodePath("../Player")
+MaxTargetRange = 600.0
+ConeHalfAngleDegrees = 100.0
+
+[node name="DamageNumbers" type="Node2D" parent="."]
+script = ExtResource("6_dmgnum")
+
+[node name="Camera" type="Camera2D" parent="."]
+script = ExtResource("2_cam")
+Smoothing = 8.0
+TargetPath = NodePath("../Player")
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="VirtualJoystick" parent="UI" instance=ExtResource("3_joystick")]
+
+[node name="AutoRunButton" type="Button" parent="UI"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -168.0
+offset_top = -368.0
+offset_right = -32.0
+offset_bottom = -296.0
+text = "Auto-Lauf"
+
+[node name="AbilityBar" type="Control" parent="UI"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -400.0
+offset_top = -280.0
+mouse_filter = 2
+script = ExtResource("4_abilitybar")
+AbilityPaths = PackedStringArray("res://assets/abilities/waechter_schildschlag.tres", "res://assets/abilities/waechter_wappenbruch.tres", "res://assets/abilities/waechter_vergeltung.tres", "res://assets/abilities/waechter_schildwurf.tres", "res://assets/abilities/waechter_zweiter_wind.tres")
+MaxResource = 100.0
+ResourceRegenPerSecond = 5.0
+TargetProviderPath = NodePath("../../CombatDirector")
+
+[node name="PlayerHealthBar" type="Control" parent="UI"]
+offset_left = 24.0
+offset_top = 24.0
+offset_right = 264.0
+offset_bottom = 52.0
+mouse_filter = 2
+script = ExtResource("7_healthbar")
+PlayerPath = NodePath("../../Player")
+
+[node name="QuestHud" type="Control" parent="UI"]
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -320.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = 88.0
+mouse_filter = 2
+script = ExtResource("11_questhud")
+
+[connection signal="pressed" from="UI/AutoRunButton" to="Player" method="ToggleAutoRun"]

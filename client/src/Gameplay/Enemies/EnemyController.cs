@@ -52,13 +52,27 @@ public sealed partial class EnemyController : Node2D
     private LocalCharacterController? _playerCharacter;
     private bool _isTargeted;
 
+    /// <summary>Wird beim Tod dieses Gegners gefeuert (für den besitzenden Spawnpunkt).</summary>
+    public event Action? Defeated;
+
     /// <summary>Ob der Gegner tot ist (nicht mehr anvisierbar).</summary>
     public bool IsDead => _health.IsDead;
+
+    /// <summary>
+    /// Konfiguriert einen programmatisch erzeugten Gegner (Spawnpunkte) vor dem Einhängen —
+    /// ersetzt die Editor-Exports, ohne <c>NodePath</c>-Auflösung über Szenengrenzen.
+    /// </summary>
+    public void Configure(string definitionPath, Node2D? player, Vector2[] patrolOffsets)
+    {
+        DefinitionPath = definitionPath;
+        PatrolOffsets = patrolOffsets;
+        _player = player;
+    }
 
     public override void _Ready()
     {
         _game = GetNode<GameBootstrap>("/root/Game");
-        _player = GetNodeOrNull<Node2D>(PlayerPath);
+        _player ??= GetNodeOrNull<Node2D>(PlayerPath);
 
         if (ResourceLoader.Load<EnemyResource>(DefinitionPath) is not EnemyResource resource)
         {
@@ -132,6 +146,8 @@ public sealed partial class EnemyController : Node2D
             RemoveFromGroup(EnemiesGroup);
             _isTargeted = false;
             _game.Logger.Info(LogCategory, $"{_definition.DisplayName} besiegt.");
+            _game.Events.Publish(new EnemyDefeatedEvent(_definition.Id));
+            Defeated?.Invoke();
         }
 
         QueueRedraw();

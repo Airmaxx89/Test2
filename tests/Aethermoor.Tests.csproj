@@ -52,6 +52,10 @@
     <Compile Include="../client/src/Gameplay/Enemies/EnemyAiState.cs" />
     <Compile Include="../client/src/Gameplay/Enemies/EnemyAiDecision.cs" />
     <Compile Include="../client/src/Gameplay/Enemies/EnemyBrain.cs" />
+    <Compile Include="../client/src/Gameplay/Zones/RespawnScheduler.cs" />
+    <Compile Include="../client/src/Gameplay/Quests/QuestDefinition.cs" />
+    <Compile Include="../client/src/Gameplay/Quests/QuestState.cs" />
+    <Compile Include="../client/src/Gameplay/Quests/QuestTracker.cs" />
     <Compile Include="../client/src/Gameplay/Input/JoystickOutput.cs" />
     <Compile Include="../client/src/Gameplay/Input/VirtualJoystickProcessor.cs" />
     <Compile Include="../client/src/Gameplay/Input/AutoRunController.cs" />
