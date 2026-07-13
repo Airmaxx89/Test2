@@ -140,5 +140,19 @@ public sealed class AbilityCaster
                 $"Fähigkeit '{ability.Id}' hat negative Werte (Cooldown/Kosten/Wirkstärke).",
                 nameof(ability));
         }
+
+        if (ability.AppliesMarker.Length > 0 && ability.MarkerDurationSeconds <= 0f)
+        {
+            throw new ArgumentException(
+                $"Fähigkeit '{ability.Id}' setzt einen Marker ohne gültige Dauer.",
+                nameof(ability));
+        }
+
+        if (ability.ComboBonusMultiplier <= 0f)
+        {
+            throw new ArgumentException(
+                $"Fähigkeit '{ability.Id}' hat einen nicht-positiven Combo-Multiplikator.",
+                nameof(ability));
+        }
     }
 }

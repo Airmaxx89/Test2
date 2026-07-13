@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="AbilityResource" load_steps=2 format=3]
+
+; Wächter (Bollwerk): Wappenbruch — bricht die Deckung und setzt den Combo-Marker
+; "wappenbruch" (8 s). Finisher: Vergeltung.
+
+[ext_resource type="Script" path="res://src/Gameplay/Abilities/AbilityResource.cs" id="1_ability"]
+
+[resource]
+script = ExtResource("1_ability")
+Id = "waechter.wappenbruch"
+DisplayName = "Wappenbruch"
+CooldownSeconds = 10.0
+ResourceCost = 25.0
+Range = 80.0
+EffectType = 0
+Magnitude = 20.0
+AppliesMarker = "wappenbruch"
+MarkerDurationSeconds = 8.0
+ConsumesMarker = ""
+ComboBonusMultiplier = 1.0

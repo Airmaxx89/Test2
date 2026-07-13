@@ -16,6 +16,19 @@ namespace Aethermoor.Gameplay.Abilities;
 /// </param>
 /// <param name="EffectType">Grundwirkung der Fähigkeit.</param>
 /// <param name="Magnitude">Wirkstärke (Schadens-/Heilbasiswert, ≥ 0).</param>
+/// <param name="AppliesMarker">
+/// Combo-Marker, den ein Treffer auf dem Ziel setzt (leer = keiner). Siehe GAME_DESIGN §7.
+/// </param>
+/// <param name="MarkerDurationSeconds">
+/// Gültigkeitsdauer des gesetzten Markers in Sekunden (&gt; 0, wenn <paramref name="AppliesMarker"/>
+/// gesetzt ist).
+/// </param>
+/// <param name="ConsumesMarker">
+/// Combo-Marker, den diese Fähigkeit als Finisher verbraucht (leer = keiner).
+/// </param>
+/// <param name="ComboBonusMultiplier">
+/// Wirkstärke-Multiplikator, wenn der verbrauchte Marker aktiv war (z. B. 1,6 = +60 %).
+/// </param>
 /// <remarks>
 /// <b>Autorität:</b> Diese Werte dienen clientseitig der Vorhersage und UI (Buttons ausgrauen,
 /// Tooltips). Verbindlich validiert und aufgelöst wird jede Ausführung serverseitig
@@ -28,4 +41,8 @@ public sealed record AbilityDefinition(
     float ResourceCost,
     float Range,
     AbilityEffectType EffectType,
-    float Magnitude);
+    float Magnitude,
+    string AppliesMarker = "",
+    float MarkerDurationSeconds = 0f,
+    string ConsumesMarker = "",
+    float ComboBonusMultiplier = 1f);

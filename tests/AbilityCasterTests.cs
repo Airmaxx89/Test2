@@ -141,6 +141,28 @@ public sealed class AbilityCasterTests
         Assert.Throws<ArgumentException>(() => Caster(Strike(id: "  ")));
     }
 
+    [Fact]
+    public void Constructor_InvalidComboValues_Throw()
+    {
+        // Marker ohne Dauer.
+        Assert.Throws<ArgumentException>(() => Caster(
+            Strike() with { AppliesMarker = "wappenbruch", MarkerDurationSeconds = 0f }));
+
+        // Nicht-positiver Combo-Multiplikator.
+        Assert.Throws<ArgumentException>(() => Caster(
+            Strike() with { ComboBonusMultiplier = 0f }));
+    }
+
+    [Fact]
+    public void Constructor_ValidComboDefinition_IsAccepted()
+    {
+        AbilityCaster caster = Caster(
+            Strike() with { AppliesMarker = "wappenbruch", MarkerDurationSeconds = 8f },
+            SelfHeal() with { Id = "test.finisher", ConsumesMarker = "wappenbruch", ComboBonusMultiplier = 1.6f });
+
+        Assert.Equal(2, caster.Abilities.Count);
+    }
+
     [Theory]
     [InlineData(0f)]
     [InlineData(-10f)]

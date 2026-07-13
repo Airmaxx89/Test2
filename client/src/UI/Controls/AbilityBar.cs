@@ -26,8 +26,10 @@ public sealed partial class AbilityBar : Control
     private const int MaxSlots = 6;
     private const float ButtonSize = 96f;
     private const float ArcRadius = 175f;
-    private const float FirstSlotAngleDegrees = 95f;
-    private const float SlotAngleStepDegrees = 24f;
+    // 5 Slots füllen den Viertelbogen 92°–180° (alle in Daumen-Reichweite, keiner unterhalb
+    // der Leiste): 92 + 22·i für i = 0…4.
+    private const float FirstSlotAngleDegrees = 92f;
+    private const float SlotAngleStepDegrees = 22f;
 
     /// <summary>Ressourcenpfade der Fähigkeiten (<c>res://…tres</c>), Reihenfolge = Slots.</summary>
     [Export] public string[] AbilityPaths { get; set; } = Array.Empty<string>();
@@ -106,10 +108,8 @@ public sealed partial class AbilityBar : Control
         float distance = _targetProvider?.DistanceToTarget ?? 0f;
         if (_caster.TryCast(abilityId, NowSeconds(), distance, out CastFailureReason reason))
         {
-            AbilityDefinition definition = _definitionsById[abilityId];
             _game.Logger.Debug(LogCategory, $"Gewirkt (prädiktiv): {abilityId}.");
-            _game.Events.Publish(new AbilityCastPredictedEvent(
-                abilityId, definition.EffectType, definition.Magnitude));
+            _game.Events.Publish(new AbilityCastPredictedEvent(_definitionsById[abilityId]));
         }
         else
         {

@@ -94,8 +94,12 @@ Ziel: Eine durchgängige, echte Spielschleife als Referenzimplementierung.
   `HealthPool` + Respawn; „Zweiter Wind" heilt tatsächlich; Kampfzahlen als **gepoolte**
   schwebende Zahlen (`DamageNumberSpawner` nutzt `ObjectPool`); HUD-Lebensbalken
   (event-getrieben, kein Polling)
-- ⬜ Wächter-Klasse (1 Spec) auf 5 Fähigkeiten ausbauen; Kampfschleife lokal im Editor
-  verifizieren (Gegner beißt zurück, Zahlen schweben, Heilung wirkt, Respawn)
+- ✅ Wächter auf 5 Fähigkeiten + Combo-System: `ComboTracker` (Marker mit Ablauf,
+  ein Finisher pro Marker, Ziele unabhängig — getestet); Definition/Resource um
+  Combo-Felder erweitert (validiert); Combo-Paar Wappenbruch → Vergeltung (+60 %)
+  und Fernoption Schildwurf als Daten; Cast-Event trägt jetzt die volle Definition
+- ⬜ Kampfschleife lokal im Editor verifizieren (5er-Leiste, Combo-Bonus sichtbar,
+  Gegner beißt zurück, Heilung wirkt, Respawn)
 - ⬜ Server-validierte Kampfauflösung (Cooldown/Reichweite/Schaden)
 - ⬜ Zone „Morgenau" (Streaming, Spawns, 1 Quest)
 - ⬜ Gegner-KI: Aggro/Patrouille/Heimkehr

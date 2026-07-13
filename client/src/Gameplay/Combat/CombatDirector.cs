@@ -35,6 +35,7 @@ public sealed partial class CombatDirector : Node, ITargetDistanceProvider
 
     private readonly Dictionary<long, EnemyController> _candidatesById = new();
     private readonly List<TargetCandidate> _candidates = new();
+    private readonly ComboTracker _combos = new();
 
     private GameBootstrap _game = null!;
     private SmartTargetSelector _selector = null!;
@@ -110,14 +111,14 @@ public sealed partial class CombatDirector : Node, ITargetDistanceProvider
 
     private void OnAbilityCast(AbilityCastPredictedEvent castEvent)
     {
-        switch (castEvent.EffectType)
+        switch (castEvent.Ability.EffectType)
         {
             case AbilityEffectType.Heal:
-                _player?.Heal(castEvent.Magnitude);
+                _player?.Heal(castEvent.Ability.Magnitude);
                 break;
 
             case AbilityEffectType.Damage:
-                ApplyDamageToCurrentTarget(castEvent);
+                ApplyDamageToCurrentTarget(castEvent.Ability);
                 break;
 
             default:
@@ -125,17 +126,38 @@ public sealed partial class CombatDirector : Node, ITargetDistanceProvider
         }
     }
 
-    private void ApplyDamageToCurrentTarget(AbilityCastPredictedEvent castEvent)
+    private void ApplyDamageToCurrentTarget(AbilityDefinition ability)
     {
         if (_currentTarget is null || _currentTarget.IsDead)
         {
             return; // Reichweite/Ziel wurden bereits beim Wirken geprüft (AbilityBar).
         }
 
-        float applied = _currentTarget.ApplyDamage(castEvent.Magnitude);
+        long targetId = _currentTarget.ToCandidate().Id;
+        double now = Time.GetTicksMsec() / 1000.0;
+
+        // Combo (GAME_DESIGN §7): Finisher verbraucht den Marker und verstärkt die Wirkung.
+        float damage = ability.Magnitude;
+        bool comboTriggered = ability.ConsumesMarker.Length > 0
+            && _combos.TryConsumeMarker(targetId, ability.ConsumesMarker, now);
+        if (comboTriggered)
+        {
+            damage *= ability.ComboBonusMultiplier;
+        }
+
+        float applied = _currentTarget.ApplyDamage(damage);
         if (applied <= 0f)
         {
             return;
+        }
+
+        if (_currentTarget.IsDead)
+        {
+            _combos.ClearTarget(targetId);
+        }
+        else if (ability.AppliesMarker.Length > 0)
+        {
+            _combos.ApplyMarker(targetId, ability.AppliesMarker, now, ability.MarkerDurationSeconds);
         }
 
         var position = new NumericsVector2(
@@ -143,6 +165,6 @@ public sealed partial class CombatDirector : Node, ITargetDistanceProvider
         _game.Events.Publish(new CombatNumberEvent(position, applied, CombatNumberKind.DamageDealt));
         _game.Logger.Debug(
             LogCategory,
-            $"{castEvent.AbilityId} trifft Ziel für {applied:F0} Schaden (prädiktiv).");
+            $"{ability.Id} trifft für {applied:F0} Schaden{(comboTriggered ? " (COMBO)" : "")} (prädiktiv).");
     }
 }

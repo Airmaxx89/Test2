@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="AbilityResource" load_steps=2 format=3]
+
+; Wächter (Bollwerk): Vergeltung — Finisher: verbraucht den Marker "wappenbruch"
+; und trifft dann für +60 % (50 -> 80 Schaden).
+
+[ext_resource type="Script" path="res://src/Gameplay/Abilities/AbilityResource.cs" id="1_ability"]
+
+[resource]
+script = ExtResource("1_ability")
+Id = "waechter.vergeltung"
+DisplayName = "Vergeltung"
+CooldownSeconds = 12.0
+ResourceCost = 30.0
+Range = 80.0
+EffectType = 0
+Magnitude = 50.0
+AppliesMarker = ""
+MarkerDurationSeconds = 0.0
+ConsumesMarker = "wappenbruch"
+ComboBonusMultiplier = 1.6
