@@ -63,6 +63,8 @@ public sealed partial class QuestDirector : Node
         if (_tracker.State == QuestState.Completed)
         {
             _game.Logger.Info(LogCategory, $"Quest abgeschlossen: {_tracker.Definition.Title}.");
+            _game.Events.Publish(new QuestCompletedEvent(
+                _tracker.Definition.Id, _tracker.Definition.XpReward));
         }
     }
 

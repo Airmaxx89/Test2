@@ -17,6 +17,7 @@ namespace Aethermoor.Gameplay.Enemies;
 /// <param name="AttackRange">Reichweite, ab der angegriffen statt verfolgt wird.</param>
 /// <param name="AttackDamage">Schaden pro Angriff.</param>
 /// <param name="AttackIntervalSeconds">Mindestabstand zwischen zwei Angriffen in Sekunden.</param>
+/// <param name="XpReward">Erfahrung, die der Tod dieses Gegners gewährt.</param>
 public sealed record EnemyDefinition(
     string Id,
     string DisplayName,
@@ -26,4 +27,5 @@ public sealed record EnemyDefinition(
     float LeashRadius,
     float AttackRange,
     float AttackDamage,
-    float AttackIntervalSeconds);
+    float AttackIntervalSeconds,
+    float XpReward = 0f);

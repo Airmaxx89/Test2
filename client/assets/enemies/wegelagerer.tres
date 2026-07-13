@@ -16,3 +16,4 @@ LeashRadius = 600.0
 AttackRange = 70.0
 AttackDamage = 12.0
 AttackIntervalSeconds = 1.5
+XpReward = 25.0

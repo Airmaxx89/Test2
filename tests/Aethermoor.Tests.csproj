@@ -56,6 +56,7 @@
     <Compile Include="../client/src/Gameplay/Quests/QuestDefinition.cs" />
     <Compile Include="../client/src/Gameplay/Quests/QuestState.cs" />
     <Compile Include="../client/src/Gameplay/Quests/QuestTracker.cs" />
+    <Compile Include="../client/src/Gameplay/Progression/ExperienceTracker.cs" />
     <Compile Include="../client/src/Gameplay/Input/JoystickOutput.cs" />
     <Compile Include="../client/src/Gameplay/Input/VirtualJoystickProcessor.cs" />
     <Compile Include="../client/src/Gameplay/Input/AutoRunController.cs" />

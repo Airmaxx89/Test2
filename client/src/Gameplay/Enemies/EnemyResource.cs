@@ -37,8 +37,11 @@ public partial class EnemyResource : Resource
     /// <summary>Mindestabstand zwischen zwei Angriffen in Sekunden.</summary>
     [Export(PropertyHint.Range, "0.2,30,0.1")] public float AttackIntervalSeconds { get; set; } = 1.5f;
 
+    /// <summary>Erfahrung, die der Tod dieses Gegners gewährt.</summary>
+    [Export(PropertyHint.Range, "0,100000,5")] public float XpReward { get; set; }
+
     /// <summary>Übersetzt in die engine-freie Definition für die KI-Logik.</summary>
     public EnemyDefinition ToDefinition()
         => new(Id, DisplayName, MaxHealth, MoveSpeed, AggroRadius, LeashRadius, AttackRange,
-            AttackDamage, AttackIntervalSeconds);
+            AttackDamage, AttackIntervalSeconds, XpReward);
 }

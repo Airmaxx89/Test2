@@ -22,6 +22,9 @@ public partial class QuestResource : Resource
     /// <summary>Benötigte Anzahl.</summary>
     [Export(PropertyHint.Range, "1,999,1")] public int RequiredCount { get; set; } = 1;
 
+    /// <summary>Erfahrung bei Abschluss.</summary>
+    [Export(PropertyHint.Range, "0,100000,10")] public float XpReward { get; set; }
+
     /// <summary>Übersetzt in die engine-freie Definition für die Quest-Logik.</summary>
-    public QuestDefinition ToDefinition() => new(Id, Title, TargetEnemyId, RequiredCount);
+    public QuestDefinition ToDefinition() => new(Id, Title, TargetEnemyId, RequiredCount, XpReward);
 }

@@ -9,8 +9,10 @@ namespace Aethermoor.Gameplay.Quests;
 /// <param name="Title">Titel für Questlog/HUD.</param>
 /// <param name="TargetEnemyId">Gegner-Kennung, deren Tode zählen (<c>EnemyDefinition.Id</c>).</param>
 /// <param name="RequiredCount">Benötigte Anzahl (&gt; 0).</param>
+/// <param name="XpReward">Erfahrung bei Abschluss.</param>
 public sealed record QuestDefinition(
     string Id,
     string Title,
     string TargetEnemyId,
-    int RequiredCount);
+    int RequiredCount,
+    float XpReward = 0f);

@@ -10,3 +10,4 @@ Id = "morgenau.wegelagerer_plage"
 Title = "Plage am Wegesrand"
 TargetEnemyId = "silberwald.wegelagerer"
 RequiredCount = 3
+XpReward = 150.0

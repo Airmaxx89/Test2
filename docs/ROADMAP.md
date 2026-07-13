@@ -104,8 +104,12 @@ Ziel: Eine durchgängige, echte Spielschleife als Referenzimplementierung.
 - ✅ Erste Quest: engine-freier `QuestTracker` (getestet) + `QuestResource`-Daten,
   `QuestDirector` + Quest-HUD; „Plage am Wegesrand" (3 Wegelagerer) in Morgenau;
   Splash-Ziel ist jetzt Morgenau
-- ⬜ Vertikale lokal im Editor verifizieren (Quest zählt, Respawn nach 20 s,
-  Combo-Bonus, Gegner beißt zurück, Heilung, Respawn des Spielers)
+- ✅ Charakter-Progression: engine-freier `ExperienceTracker` (parametrische Kurve,
+  Überlauf über Level-Grenzen, Cap verwirft — getestet); XP aus Gegner-Toden und
+  Quest-Abschluss (Werte in den Daten); `ProgressionDirector` (EventBus-Quellen,
+  Open/Closed) + XP-Leiste im HUD
+- ⬜ Vertikale lokal im Editor verifizieren (Quest zählt + gibt 150 XP, Kills je 25 XP,
+  Level-Up im Log, Respawn nach 20 s, Combo-Bonus, Heilung, Spieler-Respawn)
 - ⬜ Server-validierte Kampfauflösung (Cooldown/Reichweite/Schaden)
 - ⬜ Zone „Morgenau" (Streaming, Spawns, 1 Quest)
 - ⬜ Gegner-KI: Aggro/Patrouille/Heimkehr

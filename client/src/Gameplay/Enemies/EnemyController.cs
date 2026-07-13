@@ -146,7 +146,7 @@ public sealed partial class EnemyController : Node2D
             RemoveFromGroup(EnemiesGroup);
             _isTargeted = false;
             _game.Logger.Info(LogCategory, $"{_definition.DisplayName} besiegt.");
-            _game.Events.Publish(new EnemyDefeatedEvent(_definition.Id));
+            _game.Events.Publish(new EnemyDefeatedEvent(_definition.Id, _definition.XpReward));
             Defeated?.Invoke();
         }
 

@@ -11,3 +11,6 @@ public readonly record struct QuestProgressEvent(
     int Current,
     int Required,
     bool Completed) : IGameEvent;
+
+/// <summary>Quest abgeschlossen — Belohnungsvergabe (XP, später Gold/Items) dockt hier an.</summary>
+public readonly record struct QuestCompletedEvent(string QuestId, float XpReward) : IGameEvent;

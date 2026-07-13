@@ -8,4 +8,5 @@ namespace Aethermoor.Gameplay.Enemies;
 /// Spawnpunkte dynamisch entstehen und vergehen.
 /// </summary>
 /// <param name="EnemyId">Typ-Kennung des Gegners (<see cref="EnemyDefinition.Id"/>).</param>
-public readonly record struct EnemyDefeatedEvent(string EnemyId) : IGameEvent;
+/// <param name="XpReward">Erfahrung, die dieser Tod gewährt (aus der Definition).</param>
+public readonly record struct EnemyDefeatedEvent(string EnemyId, float XpReward) : IGameEvent;
