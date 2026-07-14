@@ -131,8 +131,11 @@ Ziel: Der Server führt den Kampf verbindlich; der Client sagt nur voraus (ADR-0
   TypeScript-Portierung des getesteten `EnemyBrain`): Patrouille/Aggro/Verfolgen/Angriff/
   Leine/Heimkehr, Angriffe auf Spieler (AttackTicker-Semantik), Respawn am Heimatpunkt;
   Spieler-HP/-Respawn servergeführt. Lokal per strikt-`tsc` verifiziert
-- ⬜ Autoritative Übernahme von Gegner-Position/-Leben/-Tod aus Snapshots (löst lokale
-  Vorhersage ab; ermöglicht sauberen Rollback)
+- ✅ Client-Übernahme der Server-Gegner: engine-freier `ServerEnemyReplicator`
+  (Positions-Interpolation via `SnapshotBuffer` + autoritatives Leben, Tod/Respawn —
+  getestet); in `ReplicatedWorld` als rote Server-Gegner-Avatare dargestellt
+- ⬜ Netzwerk-Kampfszene: Morgenau-Gameplay + Replikation zusammenführen (Casts auf
+  Server-Gegner, lokale KI wird reine Vorhersage) und lokal gegen den Docker-Stack abnehmen
 - ⬜ Gemeinsame Daten-Quelle für Client-.tres und `combat_data.ts` (generiert)
 
 ## Milestone 5+ — Content-Skalierung  ⬜

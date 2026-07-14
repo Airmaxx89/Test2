@@ -74,6 +74,7 @@
     <Compile Include="../client/src/Networking/Replication/PositionSnapshot.cs" />
     <Compile Include="../client/src/Networking/Replication/SnapshotBuffer.cs" />
     <Compile Include="../client/src/Networking/Replication/PredictionReconciler.cs" />
+    <Compile Include="../client/src/Networking/Replication/ServerEnemyReplicator.cs" />
   </ItemGroup>
 
 </Project>

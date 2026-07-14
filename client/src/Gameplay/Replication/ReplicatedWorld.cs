@@ -50,7 +50,9 @@ public sealed partial class ReplicatedWorld : Node2D
     private readonly Dictionary<string, SnapshotBuffer> _remoteBuffers = new();
     private readonly Dictionary<string, Node2D> _remoteAvatars = new();
     private readonly List<string> _departed = new();
+    private readonly Dictionary<int, Node2D> _enemyAvatars = new();
 
+    private ServerEnemyReplicator _enemies = null!;
     private GameBootstrap _game = null!;
     private PredictionReconciler _reconciler = null!;
     private INetworkService? _network;
@@ -65,6 +67,7 @@ public sealed partial class ReplicatedWorld : Node2D
         _playerNode = GetNodeOrNull<Node2D>(PlayerPath);
         _input = GetNodeOrNull(InputSourcePath) as IMovementInputSource;
 
+        _enemies = new ServerEnemyReplicator(InterpolationDelay);
         _reconciler = new PredictionReconciler(
             (position, direction, dt) => position + (direction * MoveSpeed * dt));
         if (_playerNode is not null)
@@ -118,6 +121,7 @@ public sealed partial class ReplicatedWorld : Node2D
 
         _serverClock += delta;
         UpdateRemoteAvatars();
+        UpdateEnemyAvatars();
     }
 
     private async System.Threading.Tasks.Task SetupNetworkAsync()
@@ -187,6 +191,11 @@ public sealed partial class ReplicatedWorld : Node2D
             buffer.Add(new PositionSnapshot(snapshot.Time, new NumericsVector2(player.X, player.Y)));
         }
 
+        if (snapshot.Enemies is not null)
+        {
+            _enemies.Apply(snapshot.Time, snapshot.Enemies);
+        }
+
         RemoveDepartedPlayers(snapshot);
     }
 
@@ -240,6 +249,41 @@ public sealed partial class ReplicatedWorld : Node2D
 
             avatar.Position = new Vector2(position.Value.X, position.Value.Y);
         }
+    }
+
+    private void UpdateEnemyAvatars()
+    {
+        // Server-Gegner darstellen: interpolierte Position, sichtbar solange lebend.
+        foreach (int sid in _enemies.Sids)
+        {
+            if (!_enemyAvatars.TryGetValue(sid, out Node2D? avatar))
+            {
+                avatar = CreateEnemyAvatar();
+                _enemyAvatars.Add(sid, avatar);
+                AddChild(avatar);
+            }
+
+            NumericsVector2? position = _enemies.SamplePosition(sid, _serverClock);
+            if (position is not null)
+            {
+                avatar.Position = new Vector2(position.Value.X, position.Value.Y);
+            }
+
+            avatar.Visible = _enemies.IsAlive(sid);
+        }
+    }
+
+    private static Node2D CreateEnemyAvatar()
+    {
+        // Platzhalter-Avatar für Server-Gegner (rot), bis echte Modelle kommen.
+        var avatar = new Node2D { Visible = false };
+        avatar.AddChild(new ColorRect
+        {
+            Position = new Vector2(-22f, -22f),
+            Size = new Vector2(44f, 44f),
+            Color = new Color(0.85f, 0.25f, 0.20f),
+        });
+        return avatar;
     }
 
     private static Node2D CreateRemoteAvatar()
