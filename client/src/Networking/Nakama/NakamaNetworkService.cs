@@ -45,6 +45,7 @@ public sealed class NakamaNetworkService : INetworkService, IMatchClient
     private readonly ReconnectBackoff _backoff;
 
     private readonly ConcurrentQueue<MovementSnapshot> _snapshots = new();
+    private readonly ConcurrentQueue<CastResultPayload> _castResults = new();
 
     private Client? _client;
     private ISession? _session;
@@ -141,6 +142,7 @@ public sealed class NakamaNetworkService : INetworkService, IMatchClient
 
         _match = null;
         _snapshots.Clear();
+        _castResults.Clear();
         _session = null;
         Session = null;
         _stateMachine.TryTransitionTo(ConnectionState.Disconnected);
@@ -219,6 +221,7 @@ public sealed class NakamaNetworkService : INetworkService, IMatchClient
         string matchId = _match.Id;
         _match = null;
         _snapshots.Clear();
+        _castResults.Clear();
 
         try
         {
@@ -243,10 +246,30 @@ public sealed class NakamaNetworkService : INetworkService, IMatchClient
     }
 
     /// <inheritdoc />
+    public void SendCastRequest(CastRequestPayload cast)
+    {
+        if (_match is null || _socket is null)
+        {
+            return;
+        }
+
+        string json = MovementProtocol.EncodeCast(cast);
+        _ = SendMatchStateSafeAsync(_match.Id, MovementProtocol.OpCodeCast, json);
+    }
+
+    /// <inheritdoc />
     public bool TryDequeueSnapshot(out MovementSnapshot? snapshot)
     {
         bool dequeued = _snapshots.TryDequeue(out MovementSnapshot? result);
         snapshot = result;
+        return dequeued;
+    }
+
+    /// <inheritdoc />
+    public bool TryDequeueCastResult(out CastResultPayload? result)
+    {
+        bool dequeued = _castResults.TryDequeue(out CastResultPayload? payload);
+        result = payload;
         return dequeued;
     }
 
@@ -265,23 +288,37 @@ public sealed class NakamaNetworkService : INetworkService, IMatchClient
 
     private void OnReceivedMatchState(IMatchState state)
     {
-        if (state.OpCode != MovementProtocol.OpCodeSnapshot)
-        {
-            return;
-        }
-
         string json = Encoding.UTF8.GetString(state.State);
-        MovementSnapshot? snapshot = MovementProtocol.DecodeSnapshot(json);
-        if (snapshot is null)
-        {
-            _logger.Warning(LogCategory, "Unlesbarer Snapshot verworfen.");
-            return;
-        }
 
-        _snapshots.Enqueue(snapshot);
-        while (_snapshots.Count > MaxQueuedSnapshots)
+        if (state.OpCode == MovementProtocol.OpCodeSnapshot)
         {
-            _snapshots.TryDequeue(out _); // Ältestes verwerfen — nur der jüngste Stand zählt.
+            MovementSnapshot? snapshot = MovementProtocol.DecodeSnapshot(json);
+            if (snapshot is null)
+            {
+                _logger.Warning(LogCategory, "Unlesbarer Snapshot verworfen.");
+                return;
+            }
+
+            _snapshots.Enqueue(snapshot);
+            while (_snapshots.Count > MaxQueuedSnapshots)
+            {
+                _snapshots.TryDequeue(out _); // Ältestes verwerfen — nur der jüngste Stand zählt.
+            }
+        }
+        else if (state.OpCode == MovementProtocol.OpCodeCastResult)
+        {
+            CastResultPayload? result = MovementProtocol.DecodeCastResult(json);
+            if (result is null)
+            {
+                _logger.Warning(LogCategory, "Unlesbares Wirk-Ergebnis verworfen.");
+                return;
+            }
+
+            _castResults.Enqueue(result);
+            while (_castResults.Count > MaxQueuedSnapshots)
+            {
+                _castResults.TryDequeue(out _);
+            }
         }
     }
 

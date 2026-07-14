@@ -32,7 +32,9 @@ public sealed partial class ZoneController : Node2D
         {
             if (child is SpawnPoint spawnPoint)
             {
-                spawnPoint.Setup(player, OnSpawnPointCleared);
+                // Der Listenindex ist zugleich die Server-Spawn-ID (gleiche Reihenfolge
+                // wie die Zonen-Spawnliste im Match-Handler).
+                spawnPoint.Setup(player, OnSpawnPointCleared, _spawnPoints.Count);
                 _spawnPoints.Add(spawnPoint);
                 spawnPoint.Spawn();
             }

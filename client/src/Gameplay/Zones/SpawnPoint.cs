@@ -24,12 +24,15 @@ public sealed partial class SpawnPoint : Node2D
     private Node2D? _player;
     private Action<SpawnPoint>? _onCleared;
     private EnemyController? _current;
+    private int _serverSpawnId = -1;
 
     /// <summary>Verdrahtung durch die besitzende Zone (vor dem ersten <see cref="Spawn"/>).</summary>
-    public void Setup(Node2D? player, Action<SpawnPoint> onCleared)
+    /// <param name="serverSpawnId">Index in der Zonen-Spawnliste (für serverautoritative Casts).</param>
+    public void Setup(Node2D? player, Action<SpawnPoint> onCleared, int serverSpawnId)
     {
         _player = player;
         _onCleared = onCleared;
+        _serverSpawnId = serverSpawnId;
     }
 
     /// <summary>
@@ -45,7 +48,7 @@ public sealed partial class SpawnPoint : Node2D
 
         _current?.QueueFree(); // Leichnam des Vorgängers abräumen
 
-        var enemy = new EnemyController();
+        var enemy = new EnemyController { ServerSpawnId = _serverSpawnId };
         enemy.Configure(EnemyDefinitionPath, _player, PatrolOffsets);
         enemy.Defeated += OnEnemyDefeated;
         AddChild(enemy);

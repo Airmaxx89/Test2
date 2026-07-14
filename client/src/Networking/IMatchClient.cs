@@ -39,6 +39,16 @@ public interface IMatchClient : IService
     /// </summary>
     void SendMovementInput(MovementInputPayload input);
 
+    /// <summary>
+    /// Sendet einen Wirkwunsch an den Server (fire-and-forget). Der Server validiert und
+    /// antwortet mit einem <see cref="CastResultPayload"/>, das über
+    /// <see cref="TryDequeueCastResult"/> abgeholt wird.
+    /// </summary>
+    void SendCastRequest(CastRequestPayload cast);
+
     /// <summary>Holt den nächsten gepufferten Server-Snapshot ab, sofern vorhanden.</summary>
     bool TryDequeueSnapshot(out MovementSnapshot? snapshot);
+
+    /// <summary>Holt das nächste gepufferte Wirk-Ergebnis ab, sofern vorhanden.</summary>
+    bool TryDequeueCastResult(out CastResultPayload? result);
 }

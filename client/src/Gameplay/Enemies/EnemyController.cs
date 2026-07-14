@@ -59,6 +59,13 @@ public sealed partial class EnemyController : Node2D
     public bool IsDead => _health.IsDead;
 
     /// <summary>
+    /// Server-Spawn-ID (Index der Zonen-Spawnliste) für serverautoritative Casts, oder
+    /// -1 wenn rein lokal. Client- und Server-Spawnreihenfolge stimmen bewusst überein
+    /// (Morgenau.tscn ↔ combat_data.ts) — bis eine generierte gemeinsame Quelle existiert.
+    /// </summary>
+    public int ServerSpawnId { get; set; } = -1;
+
+    /// <summary>
     /// Konfiguriert einen programmatisch erzeugten Gegner (Spawnpunkte) vor dem Einhängen —
     /// ersetzt die Editor-Exports, ohne <c>NodePath</c>-Auflösung über Szenengrenzen.
     /// </summary>

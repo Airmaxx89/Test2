@@ -4,6 +4,8 @@ using Aethermoor.Gameplay.Abilities;
 using Aethermoor.Gameplay.Character;
 using Aethermoor.Gameplay.Enemies;
 using Aethermoor.Gameplay.Targeting;
+using Aethermoor.Networking;
+using Aethermoor.Networking.Protocol;
 using Godot;
 using NumericsVector2 = System.Numerics.Vector2;
 
@@ -17,8 +19,17 @@ namespace Aethermoor.Gameplay.Combat;
 /// Schadens-Fähigkeiten (per EventBus) werden auf das aktuelle Ziel angewendet.
 /// </summary>
 /// <remarks>
-/// Clientlokale Vertikale: Die verbindliche Kampfauflösung wandert mit dem Server-Milestone
-/// in den Match-Handler (ADR-0002); dieser Director bleibt dann für Zielwahl und Vorhersage.
+/// <para>
+/// Ist ein <see cref="IMatchClient"/> mit aktivem Match registriert, wird jeder Cast
+/// zusätzlich an den Server gesendet (predict-and-confirm): Der Client zeigt die Vorhersage
+/// sofort, der Server validiert verbindlich (ADR-0002). Server-Ablehnungen werden pro Frame
+/// abgeholt und als <see cref="AbilityCastRejectedEvent"/> für Spieler-Feedback veröffentlicht.
+/// </para>
+/// <para>
+/// Die autoritative Übernahme von Gegner-Leben/-Tod aus den Server-Snapshots (statt lokaler
+/// Vorhersage) folgt mit der server-getriebenen Gegner-Iteration; bis dahin bleibt die lokale
+/// Auflösung die sichtbare (siehe Roadmap Milestone 5).
+/// </para>
 /// </remarks>
 public sealed partial class CombatDirector : Node, ITargetDistanceProvider
 {
@@ -41,6 +52,7 @@ public sealed partial class CombatDirector : Node, ITargetDistanceProvider
     private SmartTargetSelector _selector = null!;
     private LocalCharacterController? _player;
     private EnemyController? _currentTarget;
+    private IMatchClient? _match;
 
     /// <inheritdoc />
     public float DistanceToTarget { get; private set; } = float.PositiveInfinity;
@@ -51,6 +63,7 @@ public sealed partial class CombatDirector : Node, ITargetDistanceProvider
         _player = GetNodeOrNull<LocalCharacterController>(PlayerPath);
         _selector = new SmartTargetSelector(MaxTargetRange, ConeHalfAngleDegrees);
 
+        _game.Services.TryGet(out _match); // optional: nur im Netzwerkbetrieb vorhanden
         _game.Events.Subscribe<AbilityCastPredictedEvent>(OnAbilityCast);
     }
 
@@ -79,6 +92,29 @@ public sealed partial class CombatDirector : Node, ITargetDistanceProvider
         DistanceToTarget = _currentTarget is null
             ? float.PositiveInfinity
             : _player.GlobalPosition.DistanceTo(_currentTarget.GlobalPosition);
+
+        DrainServerCastResults();
+    }
+
+    private void DrainServerCastResults()
+    {
+        if (_match is null)
+        {
+            return;
+        }
+
+        while (_match.TryDequeueCastResult(out CastResultPayload? result) && result is not null)
+        {
+            if (result.Ok)
+            {
+                _game.Logger.Debug(LogCategory, $"Server bestätigt: {result.Ability}.");
+                continue;
+            }
+
+            CastFailureReason reason = CastFailureReasonMapper.FromServerReason(result.Reason);
+            _game.Logger.Debug(LogCategory, $"Server lehnt {result.Ability} ab: {reason}.");
+            _game.Events.Publish(new AbilityCastRejectedEvent(result.Ability, reason));
+        }
     }
 
     private void CollectCandidates()
@@ -111,6 +147,8 @@ public sealed partial class CombatDirector : Node, ITargetDistanceProvider
 
     private void OnAbilityCast(AbilityCastPredictedEvent castEvent)
     {
+        SendServerCast(castEvent.Ability);
+
         switch (castEvent.Ability.EffectType)
         {
             case AbilityEffectType.Heal:
@@ -124,6 +162,28 @@ public sealed partial class CombatDirector : Node, ITargetDistanceProvider
             default:
                 break;
         }
+    }
+
+    private void SendServerCast(AbilityDefinition ability)
+    {
+        if (_match is null || !_match.IsInMatch)
+        {
+            return; // reiner Lokalbetrieb (Vertikale ohne Server)
+        }
+
+        int? target = null;
+        if (ability.EffectType == AbilityEffectType.Damage)
+        {
+            // Nur server-bekannte Ziele (Spawn-ID ≥ 0) senden; rein lokale Gegner nicht.
+            if (_currentTarget is null || _currentTarget.ServerSpawnId < 0)
+            {
+                return;
+            }
+
+            target = _currentTarget.ServerSpawnId;
+        }
+
+        _match.SendCastRequest(new CastRequestPayload(ability.Id, target));
     }
 
     private void ApplyDamageToCurrentTarget(AbilityDefinition ability)

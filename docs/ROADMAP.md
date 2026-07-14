@@ -122,8 +122,13 @@ Ziel: Der Server führt den Kampf verbindlich; der Client sagt nur voraus (ADR-0
 - ✅ Wirk-Validierung im Match-Handler (OpCodes 3/4): Cooldown, Ressource, Ziel,
   Reichweite (+ Latenz-Toleranz); autoritative Schadens-/Combo-/Heil-/XP-Auflösung;
   Gegner-Leben + Respawns servergeführt; erweiterte Snapshots (hp/res/xp + enemies)
-- ⬜ Client-Anbindung: Casts über `IMatchClient` senden, `CAST_RESULT`/Snapshots mit
-  der lokalen Vorhersage abgleichen (Rollback bei Ablehnung)
+- ✅ Client-Anbindung (Transport + Feedback): Cast-Protokoll (OpCodes 3/4) SDK-frei &
+  getestet (Feldnamen gegen Server-Format); `IMatchClient` um `SendCastRequest`/
+  `TryDequeueCastResult` erweitert (gleiche thread-sichere Queue wie Snapshots);
+  `CombatDirector` sendet Casts (predict-and-confirm) und macht Server-Ablehnungen als
+  `AbilityCastRejectedEvent` sichtbar; Gegner tragen Server-Spawn-ID
+- ⬜ Autoritative Übernahme von Gegner-Leben/-Tod aus Snapshots (löst lokale
+  Schadensvorhersage ab; ermöglicht sauberen Rollback)
 - ⬜ Server-KI: Gegnerbewegung/-angriffe in den Match-Handler heben (Client-KI wird
   reine Darstellung)
 - ⬜ Gemeinsame Daten-Quelle für Client-.tres und `combat_data.ts` (generiert)
