@@ -52,15 +52,30 @@ const SERVER_ABILITIES: { [id: string]: ServerAbility } = {
     },
 };
 
+// Gegner-KI-/Kampfwerte spiegeln EnemyDefinition/wegelagerer.tres. Die KI-Zustandsmaschine
+// selbst (Patrouille -> Aggro -> Verfolgen/Angriff -> Heimkehr) ist die serverseitige
+// Portierung des getesteten C#-EnemyBrain (client/src/Gameplay/Enemies/EnemyBrain.cs).
 interface ServerEnemyType {
     id: string;
     maxHealth: number;
     xpReward: number;
+    moveSpeed: number;
+    aggroRadius: number;
+    leashRadius: number;
+    attackRange: number;
+    attackDamage: number;
+    attackIntervalSeconds: number;
 }
 
 const SERVER_ENEMY_TYPES: { [id: string]: ServerEnemyType } = {
-    "silberwald.wegelagerer": { id: "silberwald.wegelagerer", maxHealth: 120, xpReward: 25 },
+    "silberwald.wegelagerer": {
+        id: "silberwald.wegelagerer", maxHealth: 120, xpReward: 25,
+        moveSpeed: 160, aggroRadius: 260, leashRadius: 600,
+        attackRange: 70, attackDamage: 12, attackIntervalSeconds: 1.5,
+    },
 };
+
+interface Point { x: number; y: number; }
 
 /** Server-Spawnliste der Zone (spiegelt Morgenau.tscn; Positionen = Heimatpunkte). */
 interface ZoneSpawn {
@@ -68,13 +83,24 @@ interface ZoneSpawn {
     x: number;
     y: number;
     respawnSeconds: number;
+    /** Patrouillen-Wegpunkte relativ zum Heimatpunkt (leer = stehen). */
+    patrol: Point[];
 }
 
 const ZONE_SPAWNS: ZoneSpawn[] = [
-    { typeId: "silberwald.wegelagerer", x: 1100, y: 250, respawnSeconds: 20 },
-    { typeId: "silberwald.wegelagerer", x: 1250, y: 600, respawnSeconds: 20 },
-    { typeId: "silberwald.wegelagerer", x: 750, y: 900, respawnSeconds: 20 },
+    {
+        typeId: "silberwald.wegelagerer", x: 1100, y: 250, respawnSeconds: 20,
+        patrol: [{ x: 0, y: 0 }, { x: 150, y: 0 }, { x: 150, y: 130 }, { x: 0, y: 130 }],
+    },
+    { typeId: "silberwald.wegelagerer", x: 1250, y: 600, respawnSeconds: 20, patrol: [] },
+    {
+        typeId: "silberwald.wegelagerer", x: 750, y: 900, respawnSeconds: 20,
+        patrol: [{ x: 0, y: 0 }, { x: -170, y: 60 }],
+    },
 ];
+
+/** Distanz, ab der ein Weg-/Heimatpunkt als erreicht gilt (spiegelt EnemyBrain.ArrivalEpsilon). */
+const ENEMY_ARRIVAL_EPSILON = 8;
 
 /** Spieler-Kampfwerte (Platzhalter bis zum Attributsystem; müssen Client-Vorschau spiegeln). */
 const PLAYER_MAX_HEALTH = 200;

@@ -127,10 +127,12 @@ Ziel: Der Server führt den Kampf verbindlich; der Client sagt nur voraus (ADR-0
   `TryDequeueCastResult` erweitert (gleiche thread-sichere Queue wie Snapshots);
   `CombatDirector` sendet Casts (predict-and-confirm) und macht Server-Ablehnungen als
   `AbilityCastRejectedEvent` sichtbar; Gegner tragen Server-Spawn-ID
-- ⬜ Autoritative Übernahme von Gegner-Leben/-Tod aus Snapshots (löst lokale
-  Schadensvorhersage ab; ermöglicht sauberen Rollback)
-- ⬜ Server-KI: Gegnerbewegung/-angriffe in den Match-Handler heben (Client-KI wird
-  reine Darstellung)
+- ✅ Server-KI: Gegner werden autoritativ simuliert (`simulateEnemies`/`decideEnemy` —
+  TypeScript-Portierung des getesteten `EnemyBrain`): Patrouille/Aggro/Verfolgen/Angriff/
+  Leine/Heimkehr, Angriffe auf Spieler (AttackTicker-Semantik), Respawn am Heimatpunkt;
+  Spieler-HP/-Respawn servergeführt. Lokal per strikt-`tsc` verifiziert
+- ⬜ Autoritative Übernahme von Gegner-Position/-Leben/-Tod aus Snapshots (löst lokale
+  Vorhersage ab; ermöglicht sauberen Rollback)
 - ⬜ Gemeinsame Daten-Quelle für Client-.tres und `combat_data.ts` (generiert)
 
 ## Milestone 5+ — Content-Skalierung  ⬜

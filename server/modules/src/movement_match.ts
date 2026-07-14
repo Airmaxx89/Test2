@@ -51,16 +51,26 @@ interface PlayerState {
     cooldowns: { [abilityId: string]: number };
 }
 
+type EnemyAiState = "patrol" | "chase" | "attack" | "return";
+
 /** Autoritativer Zustand eines Zonen-Gegners (Index in ZONE_SPAWNS = Spawn-ID). */
 interface EnemyServerState {
     typeId: string;
     x: number;
     y: number;
+    /** Heimatpunkt (Spawn) für Aggro-Leine und Heimkehr. */
+    homeX: number;
+    homeY: number;
     health: number;
     /** Tick, ab dem der Gegner respawnt, oder null wenn er lebt. */
     respawnAtTick: number | null;
     /** Aktive Combo-Marker: Name → Ablaufzeitpunkt in Sekunden Matchzeit. */
     markers: { [marker: string]: number };
+    /** KI-Zustand (Portierung von EnemyBrain). */
+    ai: EnemyAiState;
+    patrolIndex: number;
+    /** Tick, ab dem der nächste Angriff erlaubt ist (AttackTicker-Semantik). */
+    nextAttackTick: number;
 }
 
 interface MovementMatchState extends nkruntime.MatchState {
@@ -92,9 +102,14 @@ const movementMatchInit = function (
             typeId: spawn.typeId,
             x: spawn.x,
             y: spawn.y,
+            homeX: spawn.x,
+            homeY: spawn.y,
             health: type ? type.maxHealth : 1,
             respawnAtTick: null,
             markers: {},
+            ai: "patrol",
+            patrolIndex: 0,
+            nextAttackTick: 0,
         };
     });
 
@@ -302,6 +317,139 @@ const handleCastMessage = function (
     });
 };
 
+const enemyDirectionTo = function (
+    fromX: number, fromY: number, toX: number, toY: number
+): Point {
+    const dx = toX - fromX;
+    const dy = toY - fromY;
+    const length = Math.sqrt((dx * dx) + (dy * dy));
+    if (length <= 1e-6) {
+        return { x: 0, y: 0 };
+    }
+    return { x: dx / length, y: dy / length };
+};
+
+const enemyContinuePatrol = function (enemy: EnemyServerState, spawn: ZoneSpawn): Point {
+    enemy.ai = "patrol";
+    if (spawn.patrol.length === 0) {
+        const toHome = serverDistance(enemy.x, enemy.y, enemy.homeX, enemy.homeY);
+        return toHome > ENEMY_ARRIVAL_EPSILON
+            ? enemyDirectionTo(enemy.x, enemy.y, enemy.homeX, enemy.homeY)
+            : { x: 0, y: 0 };
+    }
+
+    let wx = enemy.homeX + spawn.patrol[enemy.patrolIndex].x;
+    let wy = enemy.homeY + spawn.patrol[enemy.patrolIndex].y;
+    if (serverDistance(enemy.x, enemy.y, wx, wy) <= ENEMY_ARRIVAL_EPSILON) {
+        enemy.patrolIndex = (enemy.patrolIndex + 1) % spawn.patrol.length;
+        wx = enemy.homeX + spawn.patrol[enemy.patrolIndex].x;
+        wy = enemy.homeY + spawn.patrol[enemy.patrolIndex].y;
+    }
+    return enemyDirectionTo(enemy.x, enemy.y, wx, wy);
+};
+
+const enemyContinueReturn = function (enemy: EnemyServerState, spawn: ZoneSpawn): Point {
+    if (serverDistance(enemy.x, enemy.y, enemy.homeX, enemy.homeY) <= ENEMY_ARRIVAL_EPSILON) {
+        return enemyContinuePatrol(enemy, spawn); // am Heimatpunkt -> Patrouille
+    }
+    enemy.ai = "return";
+    return enemyDirectionTo(enemy.x, enemy.y, enemy.homeX, enemy.homeY);
+};
+
+interface EnemyDecision { dx: number; dy: number; attack: boolean; }
+
+/** Portierung von EnemyBrain.Decide (client/src/Gameplay/Enemies/EnemyBrain.cs). */
+const decideEnemy = function (
+    enemy: EnemyServerState,
+    type: ServerEnemyType,
+    spawn: ZoneSpawn,
+    playerX: number,
+    playerY: number,
+    hasPlayer: boolean
+): EnemyDecision {
+    const move = function (dir: Point): EnemyDecision {
+        return { dx: dir.x, dy: dir.y, attack: false };
+    };
+
+    if (enemy.ai === "return") {
+        return move(enemyContinueReturn(enemy, spawn));
+    }
+
+    const hasAggro = enemy.ai === "chase" || enemy.ai === "attack";
+
+    if (!hasPlayer) {
+        return move(hasAggro ? enemyContinueReturn(enemy, spawn) : enemyContinuePatrol(enemy, spawn));
+    }
+
+    const distToPlayer = serverDistance(enemy.x, enemy.y, playerX, playerY);
+    if (!hasAggro && distToPlayer > type.aggroRadius) {
+        return move(enemyContinuePatrol(enemy, spawn));
+    }
+
+    if (serverDistance(enemy.x, enemy.y, enemy.homeX, enemy.homeY) > type.leashRadius) {
+        return move(enemyContinueReturn(enemy, spawn)); // Leine gerissen
+    }
+
+    if (distToPlayer <= type.attackRange) {
+        enemy.ai = "attack";
+        return { dx: 0, dy: 0, attack: true };
+    }
+
+    enemy.ai = "chase";
+    const dir = enemyDirectionTo(enemy.x, enemy.y, playerX, playerY);
+    return { dx: dir.x, dy: dir.y, attack: false };
+};
+
+/** Simuliert alle lebenden Gegner für einen Tick: KI-Bewegung + Angriffe auf Spieler. */
+const simulateEnemies = function (tick: number, state: MovementMatchState): void {
+    const dt = 1 / TICK_RATE;
+    const userIds = Object.keys(state.players);
+
+    for (let i = 0; i < state.enemies.length; i++) {
+        const enemy = state.enemies[i];
+        if (enemy.respawnAtTick !== null || enemy.health <= 0) {
+            continue;
+        }
+
+        const type = SERVER_ENEMY_TYPES[enemy.typeId];
+        if (!type) {
+            continue;
+        }
+
+        // Nächsten Spieler bestimmen.
+        let nearestId = "";
+        let nearestDist = Infinity;
+        for (const userId of userIds) {
+            const p = state.players[userId];
+            const d = serverDistance(enemy.x, enemy.y, p.x, p.y);
+            if (d < nearestDist) {
+                nearestDist = d;
+                nearestId = userId;
+            }
+        }
+
+        const hasPlayer = nearestId.length > 0;
+        const nearest = hasPlayer ? state.players[nearestId] : null;
+        const decision = decideEnemy(
+            enemy, type, ZONE_SPAWNS[i],
+            nearest ? nearest.x : 0, nearest ? nearest.y : 0, hasPlayer);
+
+        enemy.x += decision.dx * type.moveSpeed * dt;
+        enemy.y += decision.dy * type.moveSpeed * dt;
+
+        if (decision.attack && nearest && tick >= enemy.nextAttackTick) {
+            nearest.hp = Math.max(0, nearest.hp - type.attackDamage);
+            enemy.nextAttackTick = tick + Math.round(type.attackIntervalSeconds * TICK_RATE);
+            if (nearest.hp <= 0) {
+                // Playground-Respawn am Startpunkt mit vollem Leben.
+                nearest.x = SPAWN_X;
+                nearest.y = SPAWN_Y;
+                nearest.hp = PLAYER_MAX_HEALTH;
+            }
+        }
+    }
+};
+
 const movementMatchLoop = function (
     ctx: nkruntime.Context,
     logger: nkruntime.Logger,
@@ -369,6 +517,9 @@ const movementMatchLoop = function (
         player.ack = input.seq;
     }
 
+    // Autoritative Gegner-KI: Bewegung + Angriffe (Portierung von EnemyBrain/AttackTicker).
+    simulateEnemies(tick, state);
+
     // Ressourcen-Regeneration (autoritativ; Client zeigt nur an).
     for (const userId of Object.keys(state.players)) {
         const player = state.players[userId];
@@ -385,6 +536,12 @@ const movementMatchLoop = function (
             enemy.health = type ? type.maxHealth : 1;
             enemy.markers = {};
             enemy.respawnAtTick = null;
+            // Am Heimatpunkt wiederbeleben, KI zurücksetzen.
+            enemy.x = enemy.homeX;
+            enemy.y = enemy.homeY;
+            enemy.ai = "patrol";
+            enemy.patrolIndex = 0;
+            enemy.nextAttackTick = 0;
         }
     }
 

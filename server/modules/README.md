@@ -50,13 +50,19 @@ Länge 1 geklemmt, `dt` auf 0,1 s begrenzt, veraltete/wiederholte Sequenznummern
 Eingaben pro Tick rate-limitiert; Kampf komplett servergeführt. Balancing-Konstanten
 (`MOVE_SPEED`, Fähigkeiten-/Gegnerwerte) leben hier, nicht im Client.
 
+**Server-KI (`simulateEnemies` + `decideEnemy`):** Der Server simuliert die Gegner
+autoritativ — die Zustandsmaschine Patrouille → Aggro → Verfolgen/Angriff → Leine/Heimkehr
+ist die TypeScript-Portierung des getesteten C#-`EnemyBrain`. Pro Tick bewegen sich Gegner,
+greifen den nächsten Spieler in Reichweite an (AttackTicker-Semantik) und respawnen am
+Heimatpunkt. Spieler-`hp`/-Respawn werden dabei servergeführt. Gegnerpositionen und -leben
+gehen im Snapshot (`enemies[]`) an alle Clients.
+
 **Bekannte Grenzen dieser Ausbaustufe (bewusst iterativ):**
-- Zonen-Gegner stehen serverseitig an ihren Heimatpunkten (keine Server-KI-Bewegung);
-  die Client-KI ist bis zur Server-KI-Iteration rein kosmetisch.
-- Gegner greifen serverseitig noch nicht an (Spieler-`hp` wird nur durch Heilung bewegt).
+- Der Client übernimmt Gegner-Position/-Leben noch nicht aus dem Snapshot (nächste
+  Iteration); bis dahin läuft die Client-KI parallel als Vorhersage.
 - Werte in `combat_data.ts` spiegeln die Client-.tres-Dateien; eine generierte gemeinsame
   Schema-Quelle ist als spätere Iteration vorgesehen. Bis dahin ist `combat_data.ts` die
-  autoritative Wahrheit.
+  autoritative Wahrheit (auch für die Gegner-KI-Zustandsmaschine).
 
 ## RPCs
 
