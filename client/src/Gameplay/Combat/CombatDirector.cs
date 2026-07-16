@@ -49,7 +49,7 @@ public sealed partial class CombatDirector : Node, ITargetDistanceProvider
     private readonly ComboTracker _combos = new();
 
     private GameBootstrap _game = null!;
-    private SmartTargetSelector _selector = null!;
+    private TargetTracker _tracker = null!;
     private LocalCharacterController? _player;
     private EnemyController? _currentTarget;
     private IMatchClient? _match;
@@ -61,7 +61,7 @@ public sealed partial class CombatDirector : Node, ITargetDistanceProvider
     {
         _game = GetNode<GameBootstrap>("/root/Game");
         _player = GetNodeOrNull<LocalCharacterController>(PlayerPath);
-        _selector = new SmartTargetSelector(MaxTargetRange, ConeHalfAngleDegrees);
+        _tracker = new TargetTracker(new SmartTargetSelector(MaxTargetRange, ConeHalfAngleDegrees));
 
         _game.Services.TryGet(out _match); // optional: nur im Netzwerkbetrieb vorhanden
         _game.Events.Subscribe<AbilityCastPredictedEvent>(OnAbilityCast);
@@ -82,9 +82,9 @@ public sealed partial class CombatDirector : Node, ITargetDistanceProvider
         CollectCandidates();
 
         var origin = new NumericsVector2(_player.GlobalPosition.X, _player.GlobalPosition.Y);
-        long? selectedId = _selector.SelectTarget(origin, _player.Facing, _candidates);
+        _tracker.Update(origin, _player.Facing, _candidates);
 
-        EnemyController? selected = selectedId is long id
+        EnemyController? selected = _tracker.CurrentTargetId is long id
             ? _candidatesById.GetValueOrDefault(id)
             : null;
         UpdateTargetMarker(selected);

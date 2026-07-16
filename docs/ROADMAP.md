@@ -134,8 +134,12 @@ Ziel: Der Server führt den Kampf verbindlich; der Client sagt nur voraus (ADR-0
 - ✅ Client-Übernahme der Server-Gegner: engine-freier `ServerEnemyReplicator`
   (Positions-Interpolation via `SnapshotBuffer` + autoritatives Leben, Tod/Respawn —
   getestet); in `ReplicatedWorld` als rote Server-Gegner-Avatare dargestellt
-- ⬜ Netzwerk-Kampfszene: Morgenau-Gameplay + Replikation zusammenführen (Casts auf
-  Server-Gegner, lokale KI wird reine Vorhersage) und lokal gegen den Docker-Stack abnehmen
+- ✅ Geteilte Zielverfolgung: engine-freier `TargetTracker` (Auswahl + Ziel-Identität,
+  Änderungsmeldung — getestet), `CombatDirector` darauf umgestellt; Brücke
+  `ServerEnemyTargets` (Server-Gegner → Zielkandidaten, Spawn-ID = Ziel-ID — getestet)
+- ⬜ Netzwerk-Kampfszene: Morgenau-Gameplay + Replikation zusammenführen — nutzt
+  `TargetTracker` + `ServerEnemyTargets`; Casts auf Server-Gegner, lokale KI wird reine
+  Vorhersage. Erfordert lokale Godot-/Docker-Abnahme
 - ⬜ Gemeinsame Daten-Quelle für Client-.tres und `combat_data.ts` (generiert)
 
 ## Milestone 5+ — Content-Skalierung  ⬜

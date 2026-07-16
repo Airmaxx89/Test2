@@ -62,6 +62,8 @@
     <Compile Include="../client/src/Gameplay/Input/AutoRunController.cs" />
     <Compile Include="../client/src/Gameplay/Targeting/TargetCandidate.cs" />
     <Compile Include="../client/src/Gameplay/Targeting/SmartTargetSelector.cs" />
+    <Compile Include="../client/src/Gameplay/Targeting/TargetTracker.cs" />
+    <Compile Include="../client/src/Gameplay/Targeting/ServerEnemyTargets.cs" />
     <Compile Include="../client/src/World/Camera/CameraFollowSolver.cs" />
     <Compile Include="../client/src/Networking/Connection/ConnectionState.cs" />
     <Compile Include="../client/src/Networking/Connection/ConnectionStateMachine.cs" />
