@@ -10,7 +10,7 @@ config_version=5
 config/name="Aethermoor"
 config/description="Stylisiertes Mobile-MMORPG (Android). Godot 4 (C#) + Nakama."
 run/main_scene="res://scenes/Bootstrap.tscn"
-config/features=PackedStringArray("4.4", "C#", "Mobile")
+config/features=PackedStringArray("4.7", "C#", "Mobile")
 config/icon="res://icon.svg"
 
 [dotnet]

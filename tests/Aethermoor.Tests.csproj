@@ -9,7 +9,8 @@
   -->
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <!-- Gleicher TFM wie der Client (Godot 4.7 / .NET SDK 10). -->
+    <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <LangVersion>12</LangVersion>
     <ImplicitUsings>disable</ImplicitUsings>

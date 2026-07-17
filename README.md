@@ -52,8 +52,9 @@ Berufe, Dungeons, Raids und Events **ohne grundlegende Umbauten** ergänzt werde
 > gebaut wird.
 
 **Voraussetzungen (lokal):**
-- Godot 4.4+ **.NET-Version** (Mono/C#-Build)
-- .NET SDK 8.0+
+- Godot 4.7.x **.NET-Version** (Mono/C#-Build; muss zur `Godot.NET.Sdk`-Version im
+  `client/Aethermoor.csproj` passen)
+- .NET SDK 10.0+ (Godot 4.7 verlangt SDK 10 — Meldung „.NET Sdk not found" sonst)
 - Docker + Docker Compose (für lokales Nakama)
 
 **Client öffnen:**
