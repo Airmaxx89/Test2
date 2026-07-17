@@ -13,10 +13,10 @@ obj/
 *.user
 *.suo
 *.userprefs
-# Von Godot beim Import generierte Solution/Projekt-Metadaten
+# Von Godot generierte Mono-Metadaten
 .mono/
-# (Aethermoor.sln wird von Godot generiert; nicht eingecheckt)
-*.sln
+# HINWEIS: client/Aethermoor.sln ist bewusst EINGECHECKT — der Godot-Editor baut über die
+# Solution und erzeugt sie beim Import NICHT automatisch (nur via Projekt > Tools > C#).
 
 # ─── IDEs ──────────────────────────────────────────────────
 .vs/

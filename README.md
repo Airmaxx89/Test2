@@ -58,8 +58,11 @@ Berufe, Dungeons, Raids und Events **ohne grundlegende Umbauten** ergänzt werde
 
 **Client öffnen:**
 1. Godot 4 (.NET) starten → `client/project.godot` importieren.
-2. Godot generiert `Aethermoor.sln` und `.godot/` beim ersten Import.
-3. Build via Godot-Editor oder `dotnet build client/Aethermoor.csproj`.
+2. Godot generiert `.godot/` beim ersten Import; die `Aethermoor.sln` ist eingecheckt
+   (der Editor baut über die Solution und erzeugt sie nicht automatisch).
+3. Build via Godot-Editor (Hammer-Symbol) oder `dotnet build client/Aethermoor.csproj`.
+4. Schlägt der Editor-Build ohne Details fehl („The build method threw an exception"):
+   `dotnet build client/Aethermoor.csproj` im Terminal zeigt die echte Fehlermeldung.
 
 **Backend lokal starten:** siehe `server/README.md`.
 
