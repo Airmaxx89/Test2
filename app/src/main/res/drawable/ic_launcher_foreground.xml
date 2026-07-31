@@ -1,0 +1,18 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Konzentrische Ringe mit Kern: der "Reaktor" als Jarvis-Signet. -->
+    <path
+        android:pathData="M54,54m-26,0a26,26 0 1,0 52,0a26,26 0 1,0 -52,0"
+        android:strokeColor="#5FD3F3"
+        android:strokeWidth="3" />
+    <path
+        android:pathData="M54,54m-18,0a18,18 0 1,0 36,0a18,18 0 1,0 -36,0"
+        android:strokeColor="#3FA9CC"
+        android:strokeWidth="2" />
+    <path
+        android:pathData="M54,54m-9,0a9,9 0 1,0 18,0a9,9 0 1,0 -18,0"
+        android:fillColor="#9BE7FF" />
+</vector>

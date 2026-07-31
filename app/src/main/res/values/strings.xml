@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Jarvis</string>
+
+    <!-- Navigation -->
+    <string name="nav_settings">Einstellungen</string>
+    <string name="nav_discovery">Server suchen</string>
+    <string name="action_back">Zurück</string>
+
+    <!-- Chat -->
+    <string name="chat_input_hint">Nachricht an Jarvis…</string>
+    <string name="chat_send">Senden</string>
+    <string name="chat_stop">Antwort stoppen</string>
+    <string name="chat_mic">Spracheingabe</string>
+    <string name="chat_mic_listening">Ich höre zu…</string>
+    <string name="chat_clear">Verlauf löschen</string>
+    <string name="chat_speak_on">Antworten vorlesen: an</string>
+    <string name="chat_speak_off">Antworten vorlesen: aus</string>
+    <string name="chat_empty_title">Verbunden mit deinem Jarvis-Gehirn</string>
+    <string name="chat_empty_body">Stell eine Frage oder tippe auf das Mikrofon.</string>
+    <string name="chat_retry">Erneut senden</string>
+
+    <!-- Verbindungsstatus -->
+    <string name="status_connected">Verbunden</string>
+    <string name="status_connecting">Verbinde…</string>
+    <string name="status_offline">Keine Verbindung</string>
+    <string name="status_no_wifi">Nicht im WLAN</string>
+    <string name="status_not_configured">Kein Server eingerichtet</string>
+
+    <!-- Einstellungen -->
+    <string name="settings_server">Jarvis-Server</string>
+    <string name="settings_host">Host / IP-Adresse</string>
+    <string name="settings_host_hint">192.168.1.42 oder jarvis.local</string>
+    <string name="settings_port">Port</string>
+    <string name="settings_api_mode">API-Format</string>
+    <string name="settings_api_mode_jarvis">Jarvis (nativ)</string>
+    <string name="settings_api_mode_openai">OpenAI-kompatibel</string>
+    <string name="settings_model">Modell</string>
+    <string name="settings_model_hint">z. B. jarvis-local</string>
+    <string name="settings_api_key">API-Key (optional)</string>
+    <string name="settings_api_key_hint">Wird als Bearer-Token gesendet</string>
+    <string name="settings_streaming">Antworten streamen</string>
+    <string name="settings_streaming_desc">Zeigt die Antwort Wort für Wort, sobald sie eintrifft.</string>
+    <string name="settings_speak">Antworten vorlesen</string>
+    <string name="settings_speak_desc">Liest eingehende Antworten per Text-to-Speech vor.</string>
+    <string name="settings_wifi_only">Nur im WLAN verbinden</string>
+    <string name="settings_wifi_only_desc">Blockiert Anfragen über Mobilfunk, damit das Gehirn im Heimnetz bleibt.</string>
+    <string name="settings_timeout">Zeitlimit (Sekunden)</string>
+    <string name="settings_system_prompt">System-Prompt (optional)</string>
+    <string name="settings_save">Speichern</string>
+    <string name="settings_saved">Einstellungen gespeichert</string>
+    <string name="settings_test">Verbindung testen</string>
+    <string name="settings_current_network">Aktuelles Netzwerk</string>
+
+    <!-- Suche -->
+    <string name="discovery_title">Jarvis im WLAN suchen</string>
+    <string name="discovery_scan">Subnetz scannen</string>
+    <string name="discovery_scanning">Suche läuft…</string>
+    <string name="discovery_stop">Suche stoppen</string>
+    <string name="discovery_none">Noch nichts gefunden. Läuft dein Jarvis-Server und hängt das Handy im selben WLAN?</string>
+    <string name="discovery_use">Übernehmen</string>
+    <string name="discovery_found_at">Gefunden über %1$s</string>
+
+    <!-- Fehler -->
+    <string name="error_no_host">Bitte zuerst einen Server in den Einstellungen eintragen.</string>
+    <string name="error_host_missing">Bitte Host oder IP-Adresse eintragen.</string>
+    <string name="error_wifi_required">Nur-WLAN ist aktiv, aber das Gerät hängt nicht im WLAN.</string>
+    <string name="error_mic_permission">Ohne Mikrofonzugriff geht keine Spracheingabe.</string>
+    <string name="test_reachable">Erreichbar (%1$s, %2$d ms)</string>
+    <string name="test_unreachable">Nicht erreichbar: %1$s</string>
+</resources>

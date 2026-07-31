@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Der Jarvis-Server läuft typischerweise unter einer privaten IP (192.168.x.x)
+  oder einem .local-Namen ohne gültiges TLS-Zertifikat. Android verbietet
+  Klartext-HTTP seit API 28 standardmäßig, deshalb wird es hier erlaubt.
+  Wenn dein Server HTTPS spricht, kannst du cleartextTrafficPermitted auf
+  "false" setzen und in der App https:// als Schema wählen.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+            <!-- Erlaubt selbst signierte CAs, die der Nutzer im Gerät installiert hat. -->
+            <certificates src="user" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>
