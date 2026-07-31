@@ -48,6 +48,12 @@ jobs:
       - name: Client bauen (Release)
         run: dotnet build client/Aethermoor.csproj --configuration Release
 
+      # Der Godot-Editor baut IMMER die Debug-Konfiguration. Ohne diesen Schritt bliebe
+      # genau der Build ungeprüft, den Entwickler täglich auslösen (Debug-only-Analyzer,
+      # abweichende Konstanten). Beide Konfigurationen müssen grün sein.
+      - name: Client bauen (Debug — wie im Godot-Editor)
+        run: dotnet build client/Aethermoor.csproj --configuration Debug
+
   server-modules:
     name: Server-Module bauen (tsc)
     runs-on: ubuntu-latest

@@ -62,8 +62,20 @@ Berufe, Dungeons, Raids und Events **ohne grundlegende Umbauten** ergänzt werde
 2. Godot generiert `.godot/` beim ersten Import; die `Aethermoor.sln` ist eingecheckt
    (der Editor baut über die Solution und erzeugt sie nicht automatisch).
 3. Build via Godot-Editor (Hammer-Symbol) oder `dotnet build client/Aethermoor.csproj`.
-4. Schlägt der Editor-Build ohne Details fehl („The build method threw an exception"):
-   `dotnet build client/Aethermoor.csproj` im Terminal zeigt die echte Fehlermeldung.
+**Troubleshooting (Godot-Editor-Build):**
+
+| Symptom | Ursache & Lösung |
+|---------|------------------|
+| `.NET Sdk not found. The required version is '10.0.x'` | .NET SDK 10 fehlt. Installieren, Godot **neu starten** (das SDK wird nur beim Start gesucht). |
+| `No loader found for resource: …​.cs (expected type: Script)` | Godot-Standardversion statt **.NET-Edition** im Einsatz. |
+| „The build method threw an exception" / „Unknown file" | Projektweiter Fehler ohne Quelldatei — meist ein **veralteter Restore-Cache** nach TFM-/SDK-Wechsel. Abhilfe: `client/obj`, `client/bin` und `client/.godot` löschen, dann neu bauen. |
+| Fehler ohne erkennbare Details | Das Panel **MSBuild → „Ausgabe"** zeigt das vollständige Log; alternativ `dotnet build client/Aethermoor.csproj` im Terminal. |
+
+Nach jedem Wechsel der Godot-/SDK-Version gilt: **Caches leeren** —
+```bash
+rm -rf client/obj client/bin client/.godot     # Windows: Ordner löschen
+dotnet restore client/Aethermoor.csproj
+```
 
 **Backend lokal starten:** siehe `server/README.md`.
 
