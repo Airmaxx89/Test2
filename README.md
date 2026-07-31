@@ -68,6 +68,7 @@ Berufe, Dungeons, Raids und Events **ohne grundlegende Umbauten** ergänzt werde
 |---------|------------------|
 | `.NET Sdk not found. The required version is '10.0.x'` | .NET SDK 10 fehlt. Installieren, Godot **neu starten** (das SDK wird nur beim Start gesucht). |
 | `No loader found for resource: …​.cs (expected type: Script)` | Godot-Standardversion statt **.NET-Edition** im Einsatz. |
+| `.NET Sdk not found` **trotz** installiertem SDK | **Architektur-Mismatch** (v. a. Windows ARM64): Godot-Build und SDK müssen zusammenpassen. ARM64-Godot ↔ ARM64-SDK (`C:\Program Files\dotnet\`), x64-Godot ↔ x64-SDK (auf ARM64-Windows unter `C:\Program Files\dotnet\x64\`). |
 | „The build method threw an exception" / „Unknown file" | Projektweiter Fehler ohne Quelldatei — meist ein **veralteter Restore-Cache** nach TFM-/SDK-Wechsel. Abhilfe: `client/obj`, `client/bin` und `client/.godot` löschen, dann neu bauen. |
 | Fehler ohne erkennbare Details | Das Panel **MSBuild → „Ausgabe"** zeigt das vollständige Log; alternativ `dotnet build client/Aethermoor.csproj` im Terminal. |
 
